@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useUserStore } from './infrastructure/store/userStore';
 import { initializeAuthUseCase } from './application/use-cases/initializeAuth';
 import { LoginPage } from './ui/pages/LoginPage';
-import { Dashboard } from './ui/pages/Dashboard';
+import Dashboard from './ui/pages/DashboardPage';
 import { LoadingSpinner } from './ui/components/LoadingSpinner';
 
 function App() {

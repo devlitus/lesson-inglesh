@@ -279,14 +279,7 @@ export function Dashboard() {
                       <p className="text-xs text-gray-600 leading-relaxed">
                         {topic.description}
                       </p>
-                    )}
-                    {topic.isSelected && (
-                      <div className="mt-3">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          ✓ Seleccionado
-                        </span>
-                      </div>
-                    )}
+                      )}
                   </div>
                 </CardBody>
               </Card>

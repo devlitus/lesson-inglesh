@@ -29,7 +29,7 @@ export function Dashboard() {
   } = useTopicsAutoLoad();
   const { 
     selections, 
-    isLoading: selectionsLoading,
+
     error: selectionsError,
   } = useLevelTopicSelectionAutoLoad(user?.id || null);
   
@@ -84,8 +84,6 @@ export function Dashboard() {
     }
   };
 
-  // Estados de carga combinados
-  const isLoading = userLoading || levelsLoading || topicsLoading || selectionsLoading;
   
   // Errores combinados
   const combinedError = error || levelsError || topicsError || selectionsError;
@@ -165,14 +163,6 @@ export function Dashboard() {
         </div>
       )}
 
-      {/* Loading State */}
-      {isLoading && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-            <p className="text-blue-700">Cargando datos...</p>
-          </div>
-        </div>
-      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

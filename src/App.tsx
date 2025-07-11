@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { useUserStore } from './infrastructure/store/userStore';
 import { initializeAuthUseCase } from './application/use-cases/initializeAuth';
 import { LoginPage } from './ui/pages/LoginPage';
-import Dashboard from './ui/pages/DashboardPage';
-import { LoadingSpinner } from './ui/components/LoadingSpinner';
+import { DashboardPage } from './ui/pages/DashboardPage';
+import { Spinner } from './design-system';
 
 function App() {
   const { user, isAuthenticated, isLoading } = useUserStore();
@@ -15,14 +15,14 @@ function App() {
 
   // Mostrar spinner mientras se inicializa
   if (isLoading) {
-    return <LoadingSpinner message="Inicializando aplicación..." />;
+    return <Spinner title='Cargando...' />;
   }
 
   // Mostrar dashboard si está autenticado, login si no
   return (
     <div className="app">
       {isAuthenticated && user ? (
-        <Dashboard />
+        <DashboardPage />
       ) : (
         <LoginPage />
       )}

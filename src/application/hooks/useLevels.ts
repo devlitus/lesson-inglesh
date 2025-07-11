@@ -1,71 +1,81 @@
 import { useEffect } from 'react';
-import { useLevelsStore } from '../../infrastructure/store/levelsStore';
+import { useLevelStore } from '../../infrastructure/store/levelStore';
 import { getLevelsUseCase, getLevelByIdUseCase } from '../use-cases/getLevels';
 import type { Level } from '../../domain/entities/Level';
 
 /**
  * Hook personalizado para manejar los levels
- * Proporciona acceso al estado de levels y funciones para cargarlos
+ * Proporciona funciones para cargar y gestionar el estado de los levels
  */
 export function useLevels() {
   const {
     levels,
-    currentLevel,
+    selectedLevel,
     isLoading,
     error,
-    setCurrentLevel,
+    setLevels,
+    setSelectedLevel,
+    setLoading,
+    setError,
     clearError
-  } = useLevelsStore();
+  } = useLevelStore();
 
   /**
-   * Carga todos los levels activos
+   * Carga todos los levels desde Supabase
    */
-  const loadLevels = async (): Promise<Level[]> => {
+  const loadLevels = async () => {
     try {
-      return await getLevelsUseCase();
-    } catch (error) {
-      console.error('Error al cargar levels:', error);
-      throw error;
+      setLoading(true);
+      clearError();
+      const levelsData = await getLevelsUseCase();
+      setLevels(levelsData);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al cargar los niveles';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
   /**
    * Carga un level específico por ID
+   * @param id - ID del level a cargar
    */
-  const loadLevelById = async (id: string): Promise<Level | null> => {
+  const loadLevelById = async (id: string) => {
     try {
-      return await getLevelByIdUseCase(id);
-    } catch (error) {
-      console.error('Error al cargar level por ID:', error);
-      throw error;
+      setLoading(true);
+      clearError();
+      const level = await getLevelByIdUseCase(id);
+      setSelectedLevel(level);
+      return level;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al cargar el nivel';
+      setError(errorMessage);
+      return null;
+    } finally {
+      setLoading(false);
     }
   };
 
   /**
-   * Selecciona un level como actual
+   * Selecciona un level del estado actual
+   * @param level - Level a seleccionar
    */
   const selectLevel = (level: Level | null) => {
-    setCurrentLevel(level);
+    setSelectedLevel(level);
   };
 
   /**
    * Limpia el error actual
    */
-  const clearLevelsError = () => {
+  const clearLevelError = () => {
     clearError();
-  };
-
-  /**
-   * Obtiene un level por ID desde el estado actual (sin hacer petición)
-   */
-  const getLevelFromState = (id: string): Level | undefined => {
-    return levels.find(level => level.id === id);
   };
 
   return {
     // Estado
     levels,
-    currentLevel,
+    selectedLevel,
     isLoading,
     error,
     
@@ -73,30 +83,22 @@ export function useLevels() {
     loadLevels,
     loadLevelById,
     selectLevel,
-    clearLevelsError,
-    getLevelFromState,
-    
-    // Computed
-    hasLevels: levels.length > 0,
-    levelsCount: levels.length
+    clearError: clearLevelError
   };
 }
 
 /**
  * Hook que carga automáticamente los levels al montar el componente
+ * Útil para componentes que necesitan los levels inmediatamente
  */
 export function useLevelsAutoLoad() {
   const levelsHook = useLevels();
-  const { loadLevels, levels, isLoading } = levelsHook;
-
+  
   useEffect(() => {
-    // Solo cargar si no hay levels y no está cargando
-    if (levels.length === 0 && !isLoading) {
-      loadLevels().catch(error => {
-        console.error('Error en carga automática de levels:', error);
-      });
+    if (levelsHook.levels.length === 0 && !levelsHook.isLoading) {
+      levelsHook.loadLevels();
     }
-  }, [levels.length, isLoading, loadLevels]);
-
+  }, []);
+  
   return levelsHook;
 }

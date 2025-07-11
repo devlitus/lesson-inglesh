@@ -1,67 +1,41 @@
-import { SupabaseLevelsAdapter } from '../../infrastructure/adapters/SupabaseLevelsAdapter';
-import { useLevelsStore } from '../../infrastructure/store/levelsStore';
+import { SupabaseLevelAdapter } from '../../infrastructure/adapters/SupabaseLevelAdapter';
 import type { Level } from '../../domain/entities/Level';
 
 /**
- * Caso de uso para obtener todos los levels activos de la base de datos
- * Actualiza el store global con los levels obtenidos
+ * Caso de uso para obtener todos los niveles disponibles
+ * @returns Promise<Level[]> - Lista de todos los niveles
  */
 export async function getLevelsUseCase(): Promise<Level[]> {
   try {
-    // Establecer estado de carga
-    useLevelsStore.getState().setLoading(true);
-    useLevelsStore.getState().clearError();
-    
-    // Obtener levels desde Supabase
-    const levels = await SupabaseLevelsAdapter.getLevels();
-    
-    // Actualizar el store global
-    useLevelsStore.getState().setLevels(levels);
-    
+    const levels = await SupabaseLevelAdapter.getAllLevels();
     return levels;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Error desconocido al obtener los levels';
-    
-    // Actualizar el store con el error
-    useLevelsStore.getState().setError(errorMessage);
-    
-    console.error('Error en getLevelsUseCase:', error);
-    throw error;
-  } finally {
-    // Quitar estado de carga
-    useLevelsStore.getState().setLoading(false);
+    throw new Error(
+      error instanceof Error 
+        ? `Error al obtener los niveles: ${error.message}`
+        : 'Error desconocido al obtener los niveles'
+    );
   }
 }
 
 /**
- * Caso de uso para obtener un level específico por ID
- * Actualiza el currentLevel en el store si se encuentra
+ * Caso de uso para obtener un nivel específico por ID
+ * @param id - ID del nivel a obtener
+ * @returns Promise<Level | null> - El nivel encontrado o null si no existe
  */
 export async function getLevelByIdUseCase(id: string): Promise<Level | null> {
+  if (!id || typeof id !== 'string') {
+    throw new Error('ID del nivel es requerido y debe ser una cadena válida');
+  }
+
   try {
-    // Establecer estado de carga
-    useLevelsStore.getState().setLoading(true);
-    useLevelsStore.getState().clearError();
-    
-    // Obtener level desde Supabase
-    const level = await SupabaseLevelsAdapter.getLevelById(id);
-    
-    // Actualizar el store global si se encuentra el level
-    if (level) {
-      useLevelsStore.getState().setCurrentLevel(level);
-    }
-    
+    const level = await SupabaseLevelAdapter.getLevelById(id);
     return level;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Error desconocido al obtener el level';
-    
-    // Actualizar el store con el error
-    useLevelsStore.getState().setError(errorMessage);
-    
-    console.error('Error en getLevelByIdUseCase:', error);
-    throw error;
-  } finally {
-    // Quitar estado de carga
-    useLevelsStore.getState().setLoading(false);
+    throw new Error(
+      error instanceof Error 
+        ? `Error al obtener el nivel: ${error.message}`
+        : 'Error desconocido al obtener el nivel'
+    );
   }
 }

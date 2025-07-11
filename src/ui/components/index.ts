@@ -7,6 +7,9 @@
 export { LevelsList } from './LevelsList';
 export { TopicList } from './TopicList';
 
+// Componentes de selección
+export { SelectionSaver } from './SelectionSaver';
+
 // Tipos
 export type { Topic } from '../../domain/entities/Topic';
 export type { Level } from '../../domain/entities/Level';

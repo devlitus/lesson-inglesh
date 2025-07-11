@@ -98,6 +98,7 @@ export function useLevelsAutoLoad() {
     if (levelsHook.levels.length === 0 && !levelsHook.isLoading) {
       levelsHook.loadLevels();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   return levelsHook;

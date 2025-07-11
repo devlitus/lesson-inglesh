@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useSelectLevelTopic } from '../../application/hooks/useSelectLevelTopic';
 import { useUserStore } from '../../infrastructure/store/userStore';
 import { useSelection } from '../../infrastructure/store/selectionStore';
+import { useNavigation } from "../../application/hooks";
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '../../design-system/components/molecules';
 import { Button } from '../../design-system/components/atoms';
 
@@ -12,6 +13,7 @@ export function SelectionSaver() {
   const { user, isAuthenticated } = useUserStore();
   const { level, topic, hasCompleteSelection, updateUser } = useSelection();
   const { saveSelection, isLoading } = useSelectLevelTopic();
+  const { goToLesson } = useNavigation();
 
   // Sincronizar el usuario en el selectionStore cuando cambie
   useEffect(() => {
@@ -26,6 +28,7 @@ export function SelectionSaver() {
       const levelObj = { id: level, title: '', sub_title: '', description: '', feature: '', icon: '', color_scheme: '' };
       const topicObj = { id: topic, title: '', description: '', icon: '', color_scheme: '' };
       await saveSelection(levelObj, topicObj);
+      goToLesson();
     }
   };
 

@@ -6,3 +6,13 @@ export { logoutUseCase } from './logout';
 
 // Casos de uso de levels
 export { getLevelsUseCase, getLevelByIdUseCase } from './getLevels';
+
+// Casos de uso de topics
+export { getTopicsUseCase, getTopicByIdUseCase } from './getTopics';
+
+// Casos de uso de selección de level y topic
+export { 
+  saveSelectLevelTopicUseCase, 
+  getLastSelectLevelTopicUseCase, 
+  getUserSelectLevelTopicUseCase 
+} from './saveSelectLevelTopic';

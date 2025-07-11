@@ -4,6 +4,7 @@ import { useUserStore } from "../../infrastructure/store/userStore";
 import { LevelsList } from "../components/LevelsList";
 import type { HeaderUser } from "../../design-system/components/organisms/Header/Header";
 import { TopicList } from "../components";
+import { SelectionSaver } from "../components";
 
 export function DashboardPage() {
   const {user: currentUser, logout} = useUserStore();
@@ -66,13 +67,13 @@ export function DashboardPage() {
                 </div>
               </CardHeader>
               <CardBody>
-                <LevelsList className="p-0" />
+                <LevelsList />
               </CardBody>
             </Card>
           </section>
 
           {/* Topics Section */}
-          <section className="grid grid-col-3 gap-3">
+          <section className="gap-6">
             <Card variant="outlined" size="lg" className="h-fit">
               <CardHeader>
                 <div className="flex items-center space-x-3">
@@ -90,6 +91,7 @@ export function DashboardPage() {
               </CardBody>
             </Card>
           </section>
+          <SelectionSaver />
         </div>
 
         {/* Call to Action */}

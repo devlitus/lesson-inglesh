@@ -2,6 +2,7 @@ import { useLevelsAutoLoad } from '../../application/hooks/useLevels';
 import type { Level } from '../../domain/entities/Level';
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '../../design-system/components/molecules';
 import { Badge } from '../../design-system/components/atoms';
+import { useSelection } from '../../infrastructure/store/selectionStore';
 
 interface LevelsListProps {
   onLevelSelect?: (level: Level) => void;
@@ -14,9 +15,11 @@ interface LevelsListProps {
  */
 export function LevelsList({ onLevelSelect, className = '' }: LevelsListProps) {
   const { levels, selectedLevel, isLoading, error, selectLevel } = useLevelsAutoLoad();
+  const { updateLevel } = useSelection();
 
   const handleLevelClick = (level: Level) => {
     selectLevel(level);
+    updateLevel(level.id); // Actualizar el selectionStore
     onLevelSelect?.(level);
   };
 

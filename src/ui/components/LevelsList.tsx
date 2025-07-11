@@ -1,4 +1,3 @@
-import React from 'react';
 import { useLevelsAutoLoad } from '../../application/hooks/useLevels';
 import type { Level } from '../../domain/entities/Level';
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '../../design-system/components/molecules';

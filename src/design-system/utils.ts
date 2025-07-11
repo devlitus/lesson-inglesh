@@ -13,7 +13,9 @@ export {
   cnMerge,
   createClassBuilder,
   cond,
-  responsive
+  responsive,
+  createGradientStyle,
+  createCardGradientStyle
 } from './utils/cn';
 
 // Re-export all utilities

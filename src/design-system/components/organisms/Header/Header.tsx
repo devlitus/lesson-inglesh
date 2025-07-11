@@ -86,7 +86,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
   onSettings,
   onLogout
 }) => {
-  const initials = user.name
+  const initials = (user.name || user.email || 'Usuario')
     .split(' ')
     .map(n => n[0])
     .join('')
@@ -100,7 +100,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
           {user.avatar ? (
             <img
               src={user.avatar}
-              alt={user.name}
+              alt={user.name || user.email || 'Usuario'}
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
@@ -126,7 +126,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
       placement="bottom-end"
     >
       <div className="px-3 py-2 border-b border-gray-200">
-        <p className="text-sm font-medium text-gray-900">{user.name}</p>
+        <p className="text-sm font-medium text-gray-900">{user.name || user.email || 'Usuario'}</p>
         <p className="text-xs text-gray-500">{user.email}</p>
         {user.role && (
           <Badge variant="secondary" size="sm" className="mt-1">

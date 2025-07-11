@@ -13,21 +13,30 @@ export async function initializeAuthUseCase(): Promise<void> {
     // Actualizar el store con el usuario actual (o null)
     useUserStore.getState().setUser(user);
     
+    if (!user) {
+      return;
+    }
+
     // Configurar listener para cambios de autenticación
     supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
+      if (event === "SIGNED_IN" && session?.user) {
         const user = {
           id: session.user.id,
-          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuario',
-          email: session.user.email!
+          name:
+            session.user.user_metadata?.name ||
+            session.user.email?.split("@")[0] ||
+            "Usuario",
+          email: session.user.email!,
         };
         useUserStore.getState().setUser(user);
-      } else if (event === 'SIGNED_OUT') {
+      } else if (event === "SIGNED_OUT") {
         useUserStore.getState().setUser(null);
+      } else if (event === "TOKEN_REFRESHED") {
+        console.log("🔄 Token de autenticación renovado");
       }
     });
   } catch (error) {
-    console.error('Error al inicializar autenticación:', error);
+    console.error("❌ Error al inicializar autenticación:", error);
     // En caso de error, asumimos que no hay usuario autenticado
     useUserStore.getState().setUser(null);
   } finally {

@@ -81,7 +81,31 @@ export function LessonViewer({ lessonId }: LessonViewerProps) {
           <div className="text-center py-8">
             <div className="text-6xl mb-4">📚</div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay lección disponible</h3>
-            <p className="text-gray-600">No se encontró contenido para esta combinación de nivel y tema.</p>
+            <p className="text-gray-600 mb-4">No se encontró contenido para esta combinación de nivel y tema.</p>
+            <Button 
+              onClick={async () => {
+                if (user?.id && level && topic) {
+                  try {
+                    setIsLoading(true);
+                    setError(null);
+                    const { generateLessonUseCase } = await import('../../application/use-cases');
+                    await generateLessonUseCase({ userId: user.id, levelId: level, topicId: topic });
+                    // Recargar el contenido después de generar
+                    const content = await getLessonByUserLevelTopicUseCase(user.id, level, topic);
+                    setLessonContent(content);
+                  } catch (err) {
+                    console.error('Error al generar lección:', err);
+                    setError(err instanceof Error ? err.message : 'Error al generar la lección');
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }
+              }}
+              variant="primary"
+              className="mt-4"
+            >
+              🤖 Generar Lección con IA
+            </Button>
           </div>
         </CardBody>
       </Card>

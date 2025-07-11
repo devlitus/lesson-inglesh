@@ -17,66 +17,92 @@ export class GeminiAdapter {
   constructor() {
     // Validar configuración
     if (!validateGeminiConfig()) {
-      throw new Error('Configuración de Gemini AI inválida. Verifique las variables de entorno.');
+      throw new Error(
+        "Configuración de Gemini AI inválida. Verifique las variables de entorno."
+      );
     }
-    
+
     this.genAI = new GoogleGenAI({ apiKey: geminiConfig.apiKey });
   }
 
   /**
    * Genera vocabulario para un tema y nivel específico
    */
-  async generateVocabulary(level: Level, topic: Topic): Promise<VocabularyResponseType> {
+  async generateVocabulary(
+    level: Level,
+    topic: Topic
+  ): Promise<VocabularyResponseType> {
     const prompt = this.createVocabularyPrompt(level, topic);
-    
+    const responseSchema = this.createVocabularySchema();
+
     try {
-      const result = await this.callGeminiWithRetry(prompt);
+      const result = await this.callGeminiWithRetry(prompt, responseSchema);
       const parsedResponse = JSON.parse(result);
-      
+
       // Validar la respuesta con Zod
       const validatedResponse = VocabularyResponseSchema.parse(parsedResponse);
-      
+
       return validatedResponse;
     } catch (error) {
-      throw new Error(`Error generando vocabulario: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      throw new Error(
+        `Error generando vocabulario: ${
+          error instanceof Error ? error.message : "Error desconocido"
+        }`
+      );
     }
   }
 
   /**
    * Genera conceptos gramaticales para un tema y nivel específico
    */
-  async generateGrammar(level: Level, topic: Topic): Promise<GrammarResponseType> {
+  async generateGrammar(
+    level: Level,
+    topic: Topic
+  ): Promise<GrammarResponseType> {
     const prompt = this.createGrammarPrompt(level, topic);
-    
+    const responseSchema = this.createGrammarSchema();
+
     try {
-      const result = await this.callGeminiWithRetry(prompt);
+      const result = await this.callGeminiWithRetry(prompt, responseSchema);
       const parsedResponse = JSON.parse(result);
-      
+
       // Validar la respuesta con Zod
       const validatedResponse = GrammarResponseSchema.parse(parsedResponse);
-      
+
       return validatedResponse;
     } catch (error) {
-      throw new Error(`Error generando gramática: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      throw new Error(
+        `Error generando gramática: ${
+          error instanceof Error ? error.message : "Error desconocido"
+        }`
+      );
     }
   }
 
   /**
    * Genera ejercicios para un tema y nivel específico
    */
-  async generateExercises(level: Level, topic: Topic): Promise<ExerciseResponseType> {
+  async generateExercises(
+    level: Level,
+    topic: Topic
+  ): Promise<ExerciseResponseType> {
     const prompt = this.createExercisesPrompt(level, topic);
-    
+    const responseSchema = this.createExercisesSchema();
+
     try {
-      const result = await this.callGeminiWithRetry(prompt);
+      const result = await this.callGeminiWithRetry(prompt, responseSchema);
       const parsedResponse = JSON.parse(result);
-      
+
       // Validar la respuesta con Zod
       const validatedResponse = ExerciseResponseSchema.parse(parsedResponse);
-      
+
       return validatedResponse;
     } catch (error) {
-      throw new Error(`Error generando ejercicios: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      throw new Error(
+        `Error generando ejercicios: ${
+          error instanceof Error ? error.message : "Error desconocido"
+        }`
+      );
     }
   }
 
@@ -196,41 +222,216 @@ Responde ÚNICAMENTE con el JSON válido, sin texto adicional.`;
   /**
    * Llama a Gemini con reintentos automáticos
    */
-  private async callGeminiWithRetry(prompt: string): Promise<string> {
+  private async callGeminiWithRetry(
+    prompt: string,
+    responseSchema?: Record<string, unknown>
+  ): Promise<string> {
     let lastError: Error | null = null;
-    
+
     for (let attempt = 1; attempt <= geminiConfig.maxRetries; attempt++) {
       try {
-        const result = await this.genAI.models.generateContent({
-          model: geminiConfig.model,
-          contents: prompt,
-        });
-        
-        const text = result.text;
-        
-        if (!text) {
-          throw new Error('Respuesta vacía de Gemini AI');
+        let result;
+
+        if (responseSchema) {
+          // Usar JSON mode con schema estructurado
+          result = await this.genAI.models.generateContent({
+            model: geminiConfig.model,
+            contents: prompt,
+            config: {
+              responseMimeType: "application/json",
+              responseSchema: responseSchema,
+            },
+          });
+        } else {
+          // Usar modelo estándar sin schema
+          result = await this.genAI.models.generateContent({
+            model: geminiConfig.model,
+            contents: prompt,
+          });
         }
-        
-        return text;
+
+        const text = result.text;
+
+        if (!text) {
+          throw new Error("Respuesta vacía de Gemini AI");
+        }
+
+        // Si usamos JSON mode, no necesitamos limpiar markdown
+        const cleanedText = responseSchema
+          ? text
+          : this.cleanJsonResponse(text);
+
+        return cleanedText;
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error('Error desconocido');
-        
+        lastError =
+          error instanceof Error ? error : new Error("Error desconocido");
+
         if (attempt < geminiConfig.maxRetries) {
-          console.warn(`Intento ${attempt} falló, reintentando en ${geminiConfig.retryDelay}ms...`, lastError.message);
+          console.warn(
+            `Intento ${attempt} falló, reintentando en ${geminiConfig.retryDelay}ms...`,
+            lastError.message
+          );
           await this.delay(geminiConfig.retryDelay * attempt); // Backoff exponencial
         }
       }
     }
-    
-    throw new Error(`Error después de ${geminiConfig.maxRetries} intentos: ${lastError?.message || 'Error desconocido'}`);
+
+    throw new Error(
+      `Error después de ${geminiConfig.maxRetries} intentos: ${
+        lastError?.message || "Error desconocido"
+      }`
+    );
+  }
+
+  /**
+   * Limpia la respuesta de Gemini removiendo bloques de código markdown
+   */
+  private cleanJsonResponse(text: string): string {
+    // Remover bloques de código markdown (```json ... ```)
+    let cleaned = text.replace(/```json\s*([\s\S]*?)\s*```/g, "$1");
+
+    // Remover bloques de código genéricos (``` ... ```)
+    cleaned = cleaned.replace(/```\s*([\s\S]*?)\s*```/g, "$1");
+
+    // Remover espacios en blanco al inicio y final
+    cleaned = cleaned.trim();
+
+    return cleaned;
+  }
+
+  /**
+   * Crea el schema de respuesta para vocabulario
+   */
+  private createVocabularySchema() {
+    return {
+      type: "object",
+      properties: {
+        vocabulary: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              word: { type: "string" },
+              pronunciation: { type: "string" },
+              translation: { type: "string" },
+              definition: { type: "string" },
+              example: { type: "string" },
+              partOfSpeech: {
+                type: "string",
+                enum: [
+                  "noun",
+                  "verb",
+                  "adjective",
+                  "adverb",
+                  "preposition",
+                  "other",
+                ],
+              },
+              difficulty: { type: "number", minimum: 1, maximum: 5 },
+            },
+            required: [
+              "word",
+              "pronunciation",
+              "translation",
+              "definition",
+              "example",
+              "partOfSpeech",
+              "difficulty",
+            ],
+          },
+        },
+      },
+      required: ["vocabulary"],
+    };
+  }
+
+  /**
+   * Crea el schema de respuesta para gramática
+   */
+  private createGrammarSchema() {
+    return {
+      type: "object",
+      properties: {
+        grammar: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              title: { type: "string" },
+              explanation: { type: "string" },
+              rule: { type: "string" },
+              examples: {
+                type: "array",
+                items: { type: "string" },
+              },
+              commonMistakes: {
+                type: "array",
+                items: { type: "string" },
+              },
+              tips: {
+                type: "array",
+                items: { type: "string" },
+              },
+            },
+            required: [
+              "title",
+              "explanation",
+              "rule",
+              "examples",
+              "commonMistakes",
+              "tips",
+            ],
+          },
+        },
+      },
+      required: ["grammar"],
+    };
+  }
+
+  /**
+   * Crea el schema de respuesta para ejercicios
+   */
+  private createExercisesSchema() {
+    return {
+      type: "object",
+      properties: {
+        exercises: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              type: {
+                type: "string",
+                enum: ["fill-blank", "multiple-choice", "translation"],
+              },
+              question: { type: "string" },
+              options: {
+                type: "array",
+                items: { type: "string" },
+              },
+              correctAnswer: { type: "string" },
+              explanation: { type: "string" },
+              difficulty: { type: "number", minimum: 1, maximum: 5 },
+            },
+            required: [
+              "type",
+              "question",
+              "correctAnswer",
+              "explanation",
+              "difficulty",
+            ],
+          },
+        },
+      },
+      required: ["exercises"],
+    };
   }
 
   /**
    * Función de delay para los reintentos
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 

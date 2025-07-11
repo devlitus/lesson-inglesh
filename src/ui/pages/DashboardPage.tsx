@@ -43,7 +43,7 @@ export function DashboardPage() {
               <CardTitle level={1} className="text-white text-3xl md:text-4xl font-bold mb-2">
                 ¡Bienvenido{currentUser ? `, ${currentUser.name}` : ''}!
               </CardTitle>
-              <CardDescription className="text-black text-lg">
+              <CardDescription className="text-[#fbd966] text-lg">
                 Comienza tu viaje de aprendizaje del inglés. Selecciona tu nivel y explora los topics disponibles.
               </CardDescription>
             </CardHeader>

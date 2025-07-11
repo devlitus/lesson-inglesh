@@ -228,7 +228,7 @@ export const CardDescription = React.forwardRef<HTMLParagraphElement, CardDescri
     return (
       <p
         ref={ref}
-        className={cn('text-sm text-gray-600', className)}
+        className={cn('text-sm', className)}
         {...props}
       >
         {children}

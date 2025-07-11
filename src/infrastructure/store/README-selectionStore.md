@@ -2,12 +2,18 @@
 
 Store de Zustand para manejar la selección de level y topic del usuario.
 
+## ⚠️ ACTUALIZACIÓN DE SEGURIDAD
+
+**IMPORTANTE**: Por motivos de seguridad, ya NO se persiste el `user ID` en localStorage.
+El user ID debe obtenerse del contexto de autenticación (`useUserStore`).
+
 ## Características
 
-- **Persistencia**: Los datos se guardan automáticamente en localStorage
-- **Estado centralizado**: Maneja level, topic y user IDs en un solo lugar
+- **Persistencia Segura**: Solo se guardan level y topic en localStorage
+- **Estado centralizado**: Maneja level y topic de forma segura
 - **Funciones utilitarias**: Incluye helpers para validación y limpieza
 - **TypeScript**: Completamente tipado para mejor DX
+- **Seguridad**: No persiste datos sensibles del usuario
 
 ## Estructura del Estado
 
@@ -15,7 +21,7 @@ Store de Zustand para manejar la selección de level y topic del usuario.
 interface Selection {
   level: string | null; // id_level
   topic: string | null; // id_topic
-  user: string | null;  // id_user
+  // user: ELIMINADO por seguridad - usar useUserStore
 }
 ```
 
@@ -29,7 +35,7 @@ const {
   setSelected,
   updateLevel,
   updateTopic,
-  updateUser,
+  // updateUser, // ELIMINADO por seguridad
   clearSelection,
   hasCompleteSelection,
   getSelection
@@ -44,13 +50,13 @@ const {
   selection,
   level,
   topic,
-  user,
+  // user, // ELIMINADO - usar useUserStore
   
   // Acciones
   setSelected,
   updateLevel,
   updateTopic,
-  updateUser,
+  // updateUser, // ELIMINADO por seguridad
   clearSelection,
   
   // Getters
@@ -61,14 +67,14 @@ const {
 
 ## Funciones Disponibles
 
-### `setSelected({ level, topic, user })`
+### `setSelected({ level, topic })`
 Establece una selección completa de una vez.
 
 ```typescript
 setSelected({
   level: 'level-1',
-  topic: 'topic-1', 
-  user: 'user-123'
+  topic: 'topic-1'
+  // user: NO incluir - obtener de useUserStore
 });
 ```
 
@@ -86,13 +92,6 @@ Actualiza solo el topic seleccionado.
 updateTopic('topic-3');
 ```
 
-### `updateUser(user: string)`
-Actualiza solo el user ID.
-
-```typescript
-updateUser('user-456');
-```
-
 ### `clearSelection()`
 Limpia toda la selección, estableciendo todos los valores a `null`.
 
@@ -101,11 +100,16 @@ clearSelection();
 ```
 
 ### `hasCompleteSelection()`
-Retorna `true` si level, topic y user están todos seleccionados.
+Retorna `true` si level y topic están seleccionados.
+**NOTA**: Ya no valida user - obtener user ID de `useUserStore`.
 
 ```typescript
 if (hasCompleteSelection()) {
-  // Proceder con la acción
+  // Validar también que hay usuario autenticado
+  const { user } = useUserStore();
+  if (user?.id) {
+    // Proceder con la acción
+  }
 }
 ```
 

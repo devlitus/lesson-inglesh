@@ -29,8 +29,8 @@ export const useUserStore = create<UserState>()(
     }),
     {
       name: 'user-storage',
+      // Solo persistir estado de autenticación, NO datos sensibles del usuario
       partialize: (state) => ({ 
-        user: state.user,
         isAuthenticated: state.isAuthenticated 
       }),
     }

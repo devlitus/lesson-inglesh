@@ -13,9 +13,9 @@ export interface HeaderUser {
   /** ID del usuario */
   id: string;
   /** Nombre del usuario */
-  name: string;
+  name?: string;
   /** Email del usuario */
-  email: string;
+  email?: string;
   /** Avatar del usuario */
   avatar?: string;
   /** Rol del usuario */
@@ -510,16 +510,16 @@ export const Header = React.forwardRef<HTMLElement, HeaderProps>(
                       {user.avatar ? (
                         <img
                           src={user.avatar}
-                          alt={user.name}
+                          alt={user.name || user.email || 'Usuario'}
                           className="w-10 h-10 rounded-full object-cover"
                         />
                       ) : (
                         <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                          {user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                          {(user.name || user.email || 'Usuario').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                         </div>
                       )}
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                        <p className="text-sm font-medium text-gray-900">{user.name || user.email || 'Usuario'}</p>
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
                     </div>

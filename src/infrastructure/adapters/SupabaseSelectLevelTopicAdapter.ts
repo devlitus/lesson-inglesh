@@ -43,11 +43,26 @@ export const SupabaseSelectLevelTopicAdapter = {
    */
   async getLastSelection(userId: string): Promise<SelectLevelTopic | null> {
     try {
+      // Verificar que hay una sesión activa antes de hacer la petición
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        throw new Error(`Error de sesión: ${sessionError.message}`);
+      }
+      
+      if (!session) {
+        throw new Error('No hay sesión activa. El usuario debe autenticarse.');
+      }
+      
+      // Esperar un poco para asegurar que el JWT esté disponible
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      console.log('Sesión activa encontrada, haciendo petición a select_level_topic');
+      
       const { data, error } = await supabase
         .from('select_level_topic')
         .select('*')
         .eq('id_user', userId)
-        .order('created_at', { ascending: false })
         .limit(1)
         .single();
       
@@ -57,6 +72,7 @@ export const SupabaseSelectLevelTopicAdapter = {
       
       return data || null;
     } catch (error) {
+      console.error('Error en getLastSelection:', error);
       throw new Error(
         error instanceof Error 
           ? error.message 
@@ -75,8 +91,7 @@ export const SupabaseSelectLevelTopicAdapter = {
       const { data, error } = await supabase
         .from('select_level_topic')
         .select('*')
-        .eq('id_user', userId)
-        .order('created_at', { ascending: false });
+        .eq('id_user', userId);
       
       if (error) {
         throw new Error(`Error al obtener las selecciones: ${error.message}`);

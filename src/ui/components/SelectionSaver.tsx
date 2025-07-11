@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+// import { useEffect } from 'react'; // Ya no necesario
 import { useSelectLevelTopic } from '../../application/hooks/useSelectLevelTopic';
 import { useUserStore } from '../../infrastructure/store/userStore';
 import { useSelection } from '../../infrastructure/store/selectionStore';
@@ -11,16 +11,12 @@ import { Button } from '../../design-system/components/atoms';
  */
 export function SelectionSaver() {
   const { user, isAuthenticated } = useUserStore();
-  const { level, topic, hasCompleteSelection, updateUser } = useSelection();
+  const { level, topic, hasCompleteSelection } = useSelection();
   const { saveSelection, isLoading } = useSelectLevelTopic();
   const { goToLesson } = useNavigation();
 
-  // Sincronizar el usuario en el selectionStore cuando cambie
-  useEffect(() => {
-    if (user?.id) {
-      updateUser(user.id);
-    }
-  }, [user?.id, updateUser]);
+  // NOTA: Ya no sincronizamos user ID en selectionStore por seguridad
+  // El user ID se obtiene directamente del contexto de autenticación
 
   const handleSaveSelection = async () => {
     if (level && topic && user) {

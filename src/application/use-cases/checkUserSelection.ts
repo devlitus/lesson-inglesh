@@ -20,18 +20,20 @@ export async function checkUserSelectionUseCase(): Promise<{
       throw new Error('Usuario no autenticado');
     }
 
-    // Obtener la ?ltima selecci?n del usuario
+    // Obtener la última selección del usuario
     const selection = await SupabaseSelectLevelTopicAdapter.getLastSelection(user.id);
+    
     
     return {
       hasSelection: selection !== null,
       selection
     };
   } catch (error) {
+    console.error('Error en checkUserSelectionUseCase:', error);
     throw new Error(
       error instanceof Error 
-        ? `Error al verificar selecci?n del usuario: ${error.message}`
-        : 'Error desconocido al verificar selecci?n del usuario'
+        ? `Error al verificar selección del usuario: ${error.message}`
+        : 'Error desconocido al verificar selección del usuario'
     );
   }
 }

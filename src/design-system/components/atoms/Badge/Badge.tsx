@@ -61,12 +61,14 @@ export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
     const baseClasses = [
       'inline-flex',
       'items-center',
+      'justify-center',
       'gap-1',
       'font-medium',
       'select-none',
       'transition-colors',
       'duration-150',
-      'ease-in-out'
+      'ease-in-out',
+      'leading-none'
     ];
 
     // Variantes de color
@@ -209,21 +211,21 @@ export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
         
         {/* Icono izquierdo */}
         {leftIcon && (
-          <span className={cn('flex-shrink-0', iconSizeClasses[size])} aria-hidden="true">
+          <span className={cn('flex-shrink-0 flex items-center justify-center', iconSizeClasses[size])} aria-hidden="true">
             {leftIcon}
           </span>
         )}
 
         {/* Contenido */}
         {children && (
-          <span className="truncate">
+          <span className="truncate flex items-center">
             {children}
           </span>
         )}
 
         {/* Icono derecho */}
         {rightIcon && (
-          <span className={cn('flex-shrink-0', iconSizeClasses[size])} aria-hidden="true">
+          <span className={cn('flex-shrink-0 flex items-center justify-center', iconSizeClasses[size])} aria-hidden="true">
             {rightIcon}
           </span>
         )}

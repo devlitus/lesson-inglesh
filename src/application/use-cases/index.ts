@@ -16,3 +16,9 @@ export {
   getLastSelectLevelTopicUseCase, 
   getUserSelectLevelTopicUseCase 
 } from './saveSelectLevelTopic';
+
+// Casos de uso de verificación de selección
+export { 
+  checkUserSelectionUseCase, 
+  hasUserSelectionUseCase 
+} from './checkUserSelection';

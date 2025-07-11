@@ -3,6 +3,7 @@ import type { Topic } from '../../domain/entities/Topic';
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '../../design-system/components/molecules';
 import { Badge } from '../../design-system/components/atoms';
 import { createGradientStyle } from '../../design-system/utils';
+import { useSelection } from '../../infrastructure/store/selectionStore';
 
 interface TopicListProps {
   onTopicSelect?: (topic: Topic) => void;
@@ -16,9 +17,11 @@ interface TopicListProps {
  */
 export function TopicList({ onTopicSelect, selectedTopicId, className = '' }: TopicListProps) {
   const { topics, currentTopic, isLoading, error, selectTopic } = useTopicsAutoLoad();
+  const { updateTopic } = useSelection();
 
   const handleTopicClick = (topic: Topic) => {
     selectTopic(topic);
+    updateTopic(topic.id); // Actualizar el selectionStore
     onTopicSelect?.(topic);
   };
 

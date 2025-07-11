@@ -18,9 +18,10 @@
 
 ### 2. Configurar Variables de Entorno
 
-1. Copia el archivo `.env.example` a `.env`:
-   ```bash
-   cp .env.example .env
+1. Copia el archivo `.env.template` a `.env`:
+
+```bash
+cp .env.template .env
    ```
 
 2. Edita el archivo `.env` con tus credenciales reales:

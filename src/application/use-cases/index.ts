@@ -22,3 +22,37 @@ export {
   checkUserSelectionUseCase, 
   hasUserSelectionUseCase 
 } from './checkUserSelection';
+
+// Casos de uso de generación de lecciones con Gemini AI
+export {
+  generateLessonUseCase,
+  getLessonContentUseCase,
+  getLessonByUserLevelTopicUseCase
+} from './generateLesson';
+
+// Casos de uso de generación de vocabulario
+export {
+  generateVocabularyUseCase,
+  getVocabularyByLessonUseCase,
+  regenerateVocabularyUseCase,
+  previewVocabularyUseCase
+} from './generateVocabulary';
+
+// Casos de uso de generación de gramática
+export {
+  generateGrammarUseCase,
+  getGrammarByLessonUseCase,
+  regenerateGrammarUseCase,
+  previewGrammarUseCase,
+  getGrammarConceptUseCase
+} from './generateGrammar';
+
+// Casos de uso de generación de ejercicios
+export {
+  generateExercisesUseCase,
+  getExercisesByLessonUseCase,
+  regenerateExercisesUseCase,
+  previewExercisesUseCase,
+  getExercisesByTypeUseCase,
+  validateExerciseAnswerUseCase
+} from './generateExercises';

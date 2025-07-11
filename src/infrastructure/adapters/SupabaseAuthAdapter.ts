@@ -82,22 +82,54 @@ export const SupabaseAuthAdapter = {
 
   async getCurrentUser(): Promise<User | null> {
     try {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      
+      // Primero verificar si hay una sesión activa
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      // Si no hay sesión, retornar null sin error
+      if (!session) {
+        return null;
+      }
+
+      // Si hay sesión, obtener los datos del usuario
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
       if (error) {
+        // Si el error es de sesión faltante, retornar null en lugar de lanzar error
+        if (
+          error.message?.includes("Auth session missing") ||
+          error.message?.includes("session_not_found")
+        ) {
+          return null;
+        }
         throw AuthError.fromSupabaseError(error);
       }
-      
+
       if (!user) {
         return null;
       }
-      
+
       return {
         id: user.id,
-        name: user.user_metadata?.name || user.email?.split('@')[0] || 'Usuario',
-        email: user.email!
+        name:
+          user.user_metadata?.name || user.email?.split("@")[0] || "Usuario",
+        email: user.email!,
       };
     } catch (error) {
+      // Manejo especial para errores de sesión
+      if (
+        error instanceof Error &&
+        (error.message?.includes("Auth session missing") ||
+          error.message?.includes("session_not_found") ||
+          error.message?.includes("Invalid JWT"))
+      ) {
+        return null;
+      }
+
       if (error instanceof AuthError) {
         throw error;
       }

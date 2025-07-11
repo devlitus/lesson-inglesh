@@ -11,9 +11,13 @@ export async function logoutUseCase(): Promise<void> {
     
     // Limpiar el store global
     useUserStore.getState().logout();
+    
+    // Limpiar todo el localStorage
+    localStorage.clear();
   } catch (error) {
-    // En caso de error, aún así limpiamos el estado local
+    // En caso de error, aún así limpiamos el estado local y localStorage
     useUserStore.getState().logout();
+    localStorage.clear();
     throw error;
   } finally {
     // Quitar estado de carga

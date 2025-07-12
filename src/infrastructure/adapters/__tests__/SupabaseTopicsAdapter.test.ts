@@ -1,18 +1,13 @@
-/**
- * Tests de integración para SupabaseTopicsAdapter
- * Verifica la integración correcta con Supabase para operaciones de topics
- */
-
-import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
-import { SupabaseTopicsAdapter } from '../SupabaseTopicsAdapter';
-import { supabase } from '../../../shared/config/supabaseClient';
-import type { Topic } from '../../../domain/entities/Topic';
+import { describe, test, expect, beforeEach, vi, afterEach } from "vitest";
+import { SupabaseTopicsAdapter } from "../SupabaseTopicsAdapter";
+import { supabase } from "../../../shared/config/supabaseClient";
+import { mockTopic, mockTopics } from "../../../mocks";
 
 // Mock del cliente de Supabase
-vi.mock('../../../shared/config/supabaseClient', () => ({
+vi.mock("../../../shared/config/supabaseClient", () => ({
   supabase: {
-    from: vi.fn()
-  }
+    from: vi.fn(),
+  },
 }));
 
 // Mocks de los métodos de Supabase
@@ -22,62 +17,31 @@ const mockSingle = vi.fn();
 const mockOrder = vi.fn();
 
 // Mock de console.error para evitar logs en tests
-const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+const mockConsoleError = vi
+  .spyOn(console, "error")
+  .mockImplementation(() => {});
 
-// Datos de prueba
-const mockTopic: Topic = {
-  id: '1',
-  title: 'Grammar',
-  description: 'English grammar fundamentals',
-  created_at: '2024-01-01T00:00:00Z',
-  updated_at: '2024-01-01T00:00:00Z'
-};
-
-const mockTopics: Topic[] = [
-  {
-    id: '1',
-    title: 'Grammar',
-    description: 'English grammar fundamentals',
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z'
-  },
-  {
-    id: '2',
-    title: 'Vocabulary',
-    description: 'Essential English vocabulary',
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z'
-  },
-  {
-    id: '3',
-    title: 'Pronunciation',
-    description: 'English pronunciation practice',
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z'
-  }
-];
-
-describe('SupabaseTopicsAdapter', () => {
+describe("SupabaseTopicsAdapter", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockConsoleError.mockClear();
-    
+
     // Configurar la cadena de métodos de Supabase
-    (supabase.from as any).mockReturnValue({
-      select: mockSelect
+    (supabase.from as vi.MockedFunction<typeof supabase.from>).mockReturnValue({
+      select: mockSelect,
     });
-    
+
     mockSelect.mockReturnValue({
       eq: mockEq,
-      order: mockOrder
+      order: mockOrder,
     });
-    
+
     mockEq.mockReturnValue({
-      single: mockSingle
+      single: mockSingle,
     });
-    
+
     mockOrder.mockReturnValue({
-      eq: mockEq
+      eq: mockEq,
     });
   });
 
@@ -86,12 +50,12 @@ describe('SupabaseTopicsAdapter', () => {
     mockConsoleError.mockRestore();
   });
 
-  describe('getTopics', () => {
-    test('should return all topics successfully ordered by title', async () => {
+  describe("getTopics", () => {
+    test("should return all topics successfully ordered by title", async () => {
       // Arrange
       mockOrder.mockResolvedValue({
         data: mockTopics,
-        error: null
+        error: null,
       });
 
       // Act
@@ -99,16 +63,16 @@ describe('SupabaseTopicsAdapter', () => {
 
       // Assert
       expect(result).toEqual(mockTopics);
-      expect(supabase.from).toHaveBeenCalledWith('topics');
-      expect(mockSelect).toHaveBeenCalledWith('*');
-      expect(mockOrder).toHaveBeenCalledWith('title', { ascending: true });
+      expect(supabase.from).toHaveBeenCalledWith("topics");
+      expect(mockSelect).toHaveBeenCalledWith("*");
+      expect(mockOrder).toHaveBeenCalledWith("title", { ascending: true });
     });
 
-    test('should return empty array when no topics found', async () => {
+    test("should return empty array when no topics found", async () => {
       // Arrange
       mockOrder.mockResolvedValue({
         data: null,
-        error: null
+        error: null,
       });
 
       // Act
@@ -118,189 +82,189 @@ describe('SupabaseTopicsAdapter', () => {
       expect(result).toEqual([]);
     });
 
-    test('should throw error when Supabase returns error', async () => {
+    test("should throw error when Supabase returns error", async () => {
       // Arrange
-      const supabaseError = { message: 'Database connection failed' };
+      const supabaseError = { message: "Database connection failed" };
       mockOrder.mockResolvedValue({
         data: null,
-        error: supabaseError
+        error: supabaseError,
       });
 
       // Act & Assert
-      await expect(SupabaseTopicsAdapter.getTopics())
-        .rejects
-        .toThrow('Error al obtener los topics: Database connection failed');
+      await expect(SupabaseTopicsAdapter.getTopics()).rejects.toThrow(
+        "Error al obtener los topics: Database connection failed"
+      );
     });
 
-    test('should handle and log network errors', async () => {
+    test("should handle and log network errors", async () => {
       // Arrange
-      const networkError = new Error('Network error');
+      const networkError = new Error("Network error");
       mockOrder.mockRejectedValue(networkError);
 
       // Act & Assert
-      await expect(SupabaseTopicsAdapter.getTopics())
-        .rejects
-        .toThrow('Network error');
+      await expect(SupabaseTopicsAdapter.getTopics()).rejects.toThrow(
+        "Network error"
+      );
     });
 
-    test('should handle and log unknown errors', async () => {
+    test("should handle and log unknown errors", async () => {
       // Arrange
-      const unknownError = 'Unknown error';
+      const unknownError = "Unknown error";
       mockOrder.mockRejectedValue(unknownError);
 
       // Act & Assert
-      await expect(SupabaseTopicsAdapter.getTopics())
-        .rejects
-        .toThrow('Unknown error');
+      await expect(SupabaseTopicsAdapter.getTopics()).rejects.toThrow(
+        "Unknown error"
+      );
     });
   });
 
-  describe('getTopicById', () => {
-    test('should return topic by id successfully', async () => {
+  describe("getTopicById", () => {
+    test("should return topic by id successfully", async () => {
       // Arrange
       mockSingle.mockResolvedValue({
         data: mockTopic,
-        error: null
+        error: null,
       });
 
       // Act
-      const result = await SupabaseTopicsAdapter.getTopicById('1');
+      const result = await SupabaseTopicsAdapter.getTopicById("1");
 
       // Assert
       expect(result).toEqual(mockTopic);
-      expect(supabase.from).toHaveBeenCalledWith('topics');
-      expect(mockSelect).toHaveBeenCalledWith('*');
-      expect(mockEq).toHaveBeenCalledWith('id', '1');
+      expect(supabase.from).toHaveBeenCalledWith("topics");
+      expect(mockSelect).toHaveBeenCalledWith("*");
+      expect(mockEq).toHaveBeenCalledWith("id", "1");
       expect(mockSingle).toHaveBeenCalled();
     });
 
-    test('should return null when topic not found (PGRST116)', async () => {
+    test("should return null when topic not found (PGRST116)", async () => {
       // Arrange
-      const notFoundError = { code: 'PGRST116', message: 'No rows returned' };
+      const notFoundError = { code: "PGRST116", message: "No rows returned" };
       mockSingle.mockResolvedValue({
         data: null,
-        error: notFoundError
+        error: notFoundError,
       });
 
       // Act
-      const result = await SupabaseTopicsAdapter.getTopicById('999');
+      const result = await SupabaseTopicsAdapter.getTopicById("999");
 
       // Assert
       expect(result).toBeNull();
     });
 
-    test('should throw error for other Supabase errors', async () => {
+    test("should throw error for other Supabase errors", async () => {
       // Arrange
-      const supabaseError = { code: 'OTHER_ERROR', message: 'Database error' };
+      const supabaseError = { code: "OTHER_ERROR", message: "Database error" };
       mockSingle.mockResolvedValue({
         data: null,
-        error: supabaseError
+        error: supabaseError,
       });
 
       // Act & Assert
-      await expect(SupabaseTopicsAdapter.getTopicById('1'))
-        .rejects
-        .toThrow('Error al obtener el topic: Database error');
+      await expect(SupabaseTopicsAdapter.getTopicById("1")).rejects.toThrow(
+        "Error al obtener el topic: Database error"
+      );
     });
 
-    test('should handle and log network errors', async () => {
+    test("should handle and log network errors", async () => {
       // Arrange
-      const networkError = new Error('Connection timeout');
+      const networkError = new Error("Connection timeout");
       mockSingle.mockRejectedValue(networkError);
 
       // Act & Assert
-      await expect(SupabaseTopicsAdapter.getTopicById('1'))
-        .rejects
-        .toThrow('Connection timeout');
+      await expect(SupabaseTopicsAdapter.getTopicById("1")).rejects.toThrow(
+        "Connection timeout"
+      );
     });
 
-    test('should handle and log unknown errors', async () => {
+    test("should handle and log unknown errors", async () => {
       // Arrange
-      const unknownError = 'Unknown error';
+      const unknownError = "Unknown error";
       mockSingle.mockRejectedValue(unknownError);
 
       // Act & Assert
-      await expect(SupabaseTopicsAdapter.getTopicById('1'))
-        .rejects
-        .toThrow('Unknown error');
+      await expect(SupabaseTopicsAdapter.getTopicById("1")).rejects.toThrow(
+        "Unknown error"
+      );
     });
 
-    test('should handle empty id parameter', async () => {
+    test("should handle empty id parameter", async () => {
       // Arrange
       mockSingle.mockResolvedValue({
         data: null,
-        error: { code: 'PGRST116', message: 'No rows returned' }
+        error: { code: "PGRST116", message: "No rows returned" },
       });
 
       // Act
-      const result = await SupabaseTopicsAdapter.getTopicById('');
+      const result = await SupabaseTopicsAdapter.getTopicById("");
 
       // Assert
       expect(result).toBeNull();
-      expect(mockEq).toHaveBeenCalledWith('id', '');
+      expect(mockEq).toHaveBeenCalledWith("id", "");
     });
   });
 
-  describe('integration scenarios', () => {
-    test('should handle multiple concurrent requests', async () => {
+  describe("integration scenarios", () => {
+    test("should handle multiple concurrent requests", async () => {
       // Arrange
       mockOrder.mockResolvedValue({
         data: mockTopics,
-        error: null
+        error: null,
       });
 
       // Act
-      const promises = Array(3).fill(null).map(() => 
-        SupabaseTopicsAdapter.getTopics()
-      );
+      const promises = Array(3)
+        .fill(null)
+        .map(() => SupabaseTopicsAdapter.getTopics());
       const results = await Promise.all(promises);
 
       // Assert
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result).toEqual(mockTopics);
       });
       expect(mockOrder).toHaveBeenCalledTimes(3);
     });
 
-    test('should handle mixed success and error scenarios', async () => {
+    test("should handle mixed success and error scenarios", async () => {
       // Arrange
       mockSingle
         .mockResolvedValueOnce({
           data: mockTopic,
-          error: null
+          error: null,
         })
         .mockResolvedValueOnce({
           data: null,
-          error: { code: 'PGRST116', message: 'No rows returned' }
+          error: { code: "PGRST116", message: "No rows returned" },
         })
         .mockResolvedValueOnce({
           data: null,
-          error: { code: 'OTHER_ERROR', message: 'Database error' }
+          error: { code: "OTHER_ERROR", message: "Database error" },
         });
 
       // Act & Assert
-      const result1 = await SupabaseTopicsAdapter.getTopicById('1');
+      const result1 = await SupabaseTopicsAdapter.getTopicById("1");
       expect(result1).toEqual(mockTopic);
 
-      const result2 = await SupabaseTopicsAdapter.getTopicById('999');
+      const result2 = await SupabaseTopicsAdapter.getTopicById("999");
       expect(result2).toBeNull();
 
-      await expect(SupabaseTopicsAdapter.getTopicById('error'))
-        .rejects
-        .toThrow('Error al obtener el topic: Database error');
+      await expect(SupabaseTopicsAdapter.getTopicById("error")).rejects.toThrow(
+        "Error al obtener el topic: Database error"
+      );
     });
 
-    test('should verify topics are ordered alphabetically', async () => {
+    test("should verify topics are ordered alphabetically", async () => {
       // Arrange
       const unorderedTopics = [
         { ...mockTopics[2] }, // Pronunciation
         { ...mockTopics[0] }, // Grammar
-        { ...mockTopics[1] }  // Vocabulary
+        { ...mockTopics[1] }, // Vocabulary
       ];
-      
+
       mockOrder.mockResolvedValue({
         data: unorderedTopics,
-        error: null
+        error: null,
       });
 
       // Act
@@ -308,7 +272,7 @@ describe('SupabaseTopicsAdapter', () => {
 
       // Assert
       expect(result).toEqual(unorderedTopics);
-      expect(mockOrder).toHaveBeenCalledWith('title', { ascending: true });
+      expect(mockOrder).toHaveBeenCalledWith("title", { ascending: true });
     });
   });
 });

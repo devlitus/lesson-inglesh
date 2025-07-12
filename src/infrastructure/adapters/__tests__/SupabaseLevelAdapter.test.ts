@@ -1,18 +1,13 @@
-/**
- * Tests de integración para SupabaseLevelAdapter
- * Verifica la integración correcta con Supabase para operaciones de niveles
- */
-
-import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
-import { SupabaseLevelAdapter } from '../SupabaseLevelAdapter';
-import { supabase } from '../../../shared/config/supabaseClient';
-import type { Level } from '../../../domain/entities/Level';
+import { describe, test, expect, beforeEach, vi, afterEach } from "vitest";
+import { SupabaseLevelAdapter } from "../SupabaseLevelAdapter";
+import { supabase } from "../../../shared/config/supabaseClient";
+import { mockLevel, mockLevels } from "../../../mocks";
 
 // Mock del cliente de Supabase
-vi.mock('../../../shared/config/supabaseClient', () => ({
+vi.mock("../../../shared/config/supabaseClient", () => ({
   supabase: {
-    from: vi.fn()
-  }
+    from: vi.fn(),
+  },
 }));
 
 // Mocks de los métodos de Supabase
@@ -21,53 +16,26 @@ const mockEq = vi.fn();
 const mockSingle = vi.fn();
 const mockOrder = vi.fn();
 
-// Datos de prueba
-const mockLevel: Level = {
-  id: '1',
-  title: 'Beginner',
-  description: 'Basic English level',
-  created_at: '2024-01-01T00:00:00Z',
-  updated_at: '2024-01-01T00:00:00Z'
-};
-
-const mockLevels: Level[] = [
-  mockLevel,
-  {
-    id: '2',
-    title: 'Intermediate',
-    description: 'Intermediate English level',
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z'
-  },
-  {
-    id: '3',
-    title: 'Advanced',
-    description: 'Advanced English level',
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z'
-  }
-];
-
-describe('SupabaseLevelAdapter', () => {
+describe("SupabaseLevelAdapter", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Configurar la cadena de métodos de Supabase
-    (supabase.from as any).mockReturnValue({
-      select: mockSelect
+    (supabase.from as vi.MockedFunction<typeof supabase.from>).mockReturnValue({
+      select: mockSelect,
     });
-    
+
     mockSelect.mockReturnValue({
       eq: mockEq,
-      order: mockOrder
+      order: mockOrder,
     });
-    
+
     mockEq.mockReturnValue({
-      single: mockSingle
+      single: mockSingle,
     });
-    
+
     mockOrder.mockReturnValue({
-      eq: mockEq
+      eq: mockEq,
     });
   });
 
@@ -75,12 +43,12 @@ describe('SupabaseLevelAdapter', () => {
     vi.resetAllMocks();
   });
 
-  describe('getAllLevels', () => {
-    test('should return all levels successfully', async () => {
+  describe("getAllLevels", () => {
+    test("should return all levels successfully", async () => {
       // Arrange
       mockSelect.mockResolvedValue({
         data: mockLevels,
-        error: null
+        error: null,
       });
 
       // Act
@@ -88,15 +56,15 @@ describe('SupabaseLevelAdapter', () => {
 
       // Assert
       expect(result).toEqual(mockLevels);
-      expect(supabase.from).toHaveBeenCalledWith('levels');
-      expect(mockSelect).toHaveBeenCalledWith('*');
+      expect(supabase.from).toHaveBeenCalledWith("levels");
+      expect(mockSelect).toHaveBeenCalledWith("*");
     });
 
-    test('should return empty array when no levels found', async () => {
+    test("should return empty array when no levels found", async () => {
       // Arrange
       mockSelect.mockResolvedValue({
         data: null,
-        error: null
+        error: null,
       });
 
       // Act
@@ -106,172 +74,172 @@ describe('SupabaseLevelAdapter', () => {
       expect(result).toEqual([]);
     });
 
-    test('should throw error when Supabase returns error', async () => {
+    test("should throw error when Supabase returns error", async () => {
       // Arrange
-      const supabaseError = { message: 'Database connection failed' };
+      const supabaseError = { message: "Database connection failed" };
       mockSelect.mockResolvedValue({
         data: null,
-        error: supabaseError
+        error: supabaseError,
       });
 
       // Act & Assert
-      await expect(SupabaseLevelAdapter.getAllLevels())
-        .rejects
-        .toThrow('Error al obtener los niveles: Database connection failed');
+      await expect(SupabaseLevelAdapter.getAllLevels()).rejects.toThrow(
+        "Error al obtener los niveles: Database connection failed"
+      );
     });
 
-    test('should handle network errors', async () => {
+    test("should handle network errors", async () => {
       // Arrange
-      mockSelect.mockRejectedValue(new Error('Network error'));
+      mockSelect.mockRejectedValue(new Error("Network error"));
 
       // Act & Assert
-      await expect(SupabaseLevelAdapter.getAllLevels())
-        .rejects
-        .toThrow('Network error');
+      await expect(SupabaseLevelAdapter.getAllLevels()).rejects.toThrow(
+        "Network error"
+      );
     });
 
-    test('should handle unknown errors', async () => {
+    test("should handle unknown errors", async () => {
       // Arrange
-      mockSelect.mockRejectedValue('Unknown error');
+      mockSelect.mockRejectedValue("Unknown error");
 
       // Act & Assert
-      await expect(SupabaseLevelAdapter.getAllLevels())
-        .rejects
-        .toThrow('Error desconocido al obtener los niveles');
+      await expect(SupabaseLevelAdapter.getAllLevels()).rejects.toThrow(
+        "Error desconocido al obtener los niveles"
+      );
     });
   });
 
-  describe('getLevelById', () => {
-    test('should return level by id successfully', async () => {
+  describe("getLevelById", () => {
+    test("should return level by id successfully", async () => {
       // Arrange
       mockSingle.mockResolvedValue({
         data: mockLevel,
-        error: null
+        error: null,
       });
 
       // Act
-      const result = await SupabaseLevelAdapter.getLevelById('1');
+      const result = await SupabaseLevelAdapter.getLevelById("1");
 
       // Assert
       expect(result).toEqual(mockLevel);
-      expect(supabase.from).toHaveBeenCalledWith('levels');
-      expect(mockSelect).toHaveBeenCalledWith('*');
-      expect(mockEq).toHaveBeenCalledWith('id', '1');
+      expect(supabase.from).toHaveBeenCalledWith("levels");
+      expect(mockSelect).toHaveBeenCalledWith("*");
+      expect(mockEq).toHaveBeenCalledWith("id", "1");
       expect(mockSingle).toHaveBeenCalled();
     });
 
-    test('should return null when level not found (PGRST116)', async () => {
+    test("should return null when level not found (PGRST116)", async () => {
       // Arrange
-      const notFoundError = { code: 'PGRST116', message: 'No rows returned' };
+      const notFoundError = { code: "PGRST116", message: "No rows returned" };
       mockSingle.mockResolvedValue({
         data: null,
-        error: notFoundError
+        error: notFoundError,
       });
 
       // Act
-      const result = await SupabaseLevelAdapter.getLevelById('999');
+      const result = await SupabaseLevelAdapter.getLevelById("999");
 
       // Assert
       expect(result).toBeNull();
     });
 
-    test('should throw error for other Supabase errors', async () => {
+    test("should throw error for other Supabase errors", async () => {
       // Arrange
-      const supabaseError = { code: 'OTHER_ERROR', message: 'Database error' };
+      const supabaseError = { code: "OTHER_ERROR", message: "Database error" };
       mockSingle.mockResolvedValue({
         data: null,
-        error: supabaseError
+        error: supabaseError,
       });
 
       // Act & Assert
-      await expect(SupabaseLevelAdapter.getLevelById('1'))
-        .rejects
-        .toThrow('Error al obtener el nivel: Database error');
+      await expect(SupabaseLevelAdapter.getLevelById("1")).rejects.toThrow(
+        "Error al obtener el nivel: Database error"
+      );
     });
 
-    test('should handle network errors', async () => {
+    test("should handle network errors", async () => {
       // Arrange
-      mockSingle.mockRejectedValue(new Error('Connection timeout'));
+      mockSingle.mockRejectedValue(new Error("Connection timeout"));
 
       // Act & Assert
-      await expect(SupabaseLevelAdapter.getLevelById('1'))
-        .rejects
-        .toThrow('Connection timeout');
+      await expect(SupabaseLevelAdapter.getLevelById("1")).rejects.toThrow(
+        "Connection timeout"
+      );
     });
 
-    test('should handle unknown errors', async () => {
+    test("should handle unknown errors", async () => {
       // Arrange
-      mockSingle.mockRejectedValue('Unknown error');
+      mockSingle.mockRejectedValue("Unknown error");
 
       // Act & Assert
-      await expect(SupabaseLevelAdapter.getLevelById('1'))
-        .rejects
-        .toThrow('Error desconocido al obtener el nivel');
+      await expect(SupabaseLevelAdapter.getLevelById("1")).rejects.toThrow(
+        "Error desconocido al obtener el nivel"
+      );
     });
 
-    test('should handle empty id parameter', async () => {
+    test("should handle empty id parameter", async () => {
       // Arrange
       mockSingle.mockResolvedValue({
         data: null,
-        error: { code: 'PGRST116', message: 'No rows returned' }
+        error: { code: "PGRST116", message: "No rows returned" },
       });
 
       // Act
-      const result = await SupabaseLevelAdapter.getLevelById('');
+      const result = await SupabaseLevelAdapter.getLevelById("");
 
       // Assert
       expect(result).toBeNull();
-      expect(mockEq).toHaveBeenCalledWith('id', '');
+      expect(mockEq).toHaveBeenCalledWith("id", "");
     });
   });
 
-  describe('integration scenarios', () => {
-    test('should handle multiple concurrent requests', async () => {
+  describe("integration scenarios", () => {
+    test("should handle multiple concurrent requests", async () => {
       // Arrange
       mockSelect.mockResolvedValue({
         data: mockLevels,
-        error: null
+        error: null,
       });
 
       // Act
-      const promises = Array(3).fill(null).map(() => 
-        SupabaseLevelAdapter.getAllLevels()
-      );
+      const promises = Array(3)
+        .fill(null)
+        .map(() => SupabaseLevelAdapter.getAllLevels());
       const results = await Promise.all(promises);
 
       // Assert
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result).toEqual(mockLevels);
       });
       expect(mockSelect).toHaveBeenCalledTimes(3);
     });
 
-    test('should handle mixed success and error scenarios', async () => {
+    test("should handle mixed success and error scenarios", async () => {
       // Arrange
       mockSingle
         .mockResolvedValueOnce({
           data: mockLevel,
-          error: null
+          error: null,
         })
         .mockResolvedValueOnce({
           data: null,
-          error: { code: 'PGRST116', message: 'No rows returned' }
+          error: { code: "PGRST116", message: "No rows returned" },
         })
         .mockResolvedValueOnce({
           data: null,
-          error: { code: 'OTHER_ERROR', message: 'Database error' }
+          error: { code: "OTHER_ERROR", message: "Database error" },
         });
 
       // Act & Assert
-      const result1 = await SupabaseLevelAdapter.getLevelById('1');
+      const result1 = await SupabaseLevelAdapter.getLevelById("1");
       expect(result1).toEqual(mockLevel);
 
-      const result2 = await SupabaseLevelAdapter.getLevelById('999');
+      const result2 = await SupabaseLevelAdapter.getLevelById("999");
       expect(result2).toBeNull();
 
-      await expect(SupabaseLevelAdapter.getLevelById('error'))
-        .rejects
-        .toThrow('Error al obtener el nivel: Database error');
+      await expect(SupabaseLevelAdapter.getLevelById("error")).rejects.toThrow(
+        "Error al obtener el nivel: Database error"
+      );
     });
   });
 });

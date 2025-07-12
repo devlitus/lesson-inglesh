@@ -135,7 +135,7 @@ describe('ProtectedRoute', () => {
     test('should handle undefined isAuthenticated as false', () => {
       // Arrange & Act
       renderWithRouter(
-        <ProtectedRoute isAuthenticated={undefined as any}>
+        <ProtectedRoute isAuthenticated={undefined as unknown as boolean}>
           <TestChild />
         </ProtectedRoute>
       );

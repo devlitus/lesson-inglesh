@@ -230,7 +230,7 @@ export function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} noValidate>
+          <form onSubmit={handleSubmit} noValidate role="form">
             <fieldset disabled={isLoading} className="space-y-6">
               <legend className="sr-only">
                 {isSignUp ? 'Formulario de registro' : 'Formulario de inicio de sesión'}
@@ -255,7 +255,6 @@ export function LoginPage() {
                     value={formData.email}
                     onChange={handleInputChange('email')}
                     placeholder="tu@email.com"
-                    error={errors.email}
                     leftIcon={<EmailIcon />}
                     className="pl-10"
                     aria-describedby={errors.email ? 'email-error' : undefined}
@@ -291,7 +290,6 @@ export function LoginPage() {
                     value={formData.password}
                     onChange={handleInputChange('password')}
                     placeholder="••••••••"
-                    error={errors.password}
                     leftIcon={<LockIcon />}
                     className="pl-10 pr-10"
                     aria-describedby={errors.password ? 'password-error' : undefined}
@@ -346,7 +344,6 @@ export function LoginPage() {
                       value={formData.confirmPassword || ''}
                       onChange={handleInputChange('confirmPassword')}
                       placeholder="••••••••"
-                      error={errors.confirmPassword}
                       leftIcon={<LockIcon />}
                       className="pl-10 pr-10"
                       aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}

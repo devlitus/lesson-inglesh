@@ -8,7 +8,10 @@ import { initializeAuthUseCase } from '../initializeAuth';
 import { useUserStore } from '../../../infrastructure/store/userStore';
 import { SupabaseAuthAdapter } from '../../../infrastructure/adapters/SupabaseAuthAdapter';
 import { supabase } from '../../../shared/config/supabaseClient';
-import type { User } from '../../../domain/entities/User';
+import { mockUser} from '../../../mocks'
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
+
+
 
 // Mock de SupabaseAuthAdapter
 vi.mock('../../../infrastructure/adapters/SupabaseAuthAdapter', () => ({
@@ -21,26 +24,34 @@ vi.mock('../../../infrastructure/adapters/SupabaseAuthAdapter', () => ({
 vi.mock('../../../shared/config/supabaseClient', () => ({
   supabase: {
     auth: {
-      onAuthStateChange: vi.fn(),
+      onAuthStateChange: vi.fn(() => ({
+        data: {
+          subscription: {
+            id: 'mock-subscription-id',
+            callback: vi.fn(),
+            unsubscribe: vi.fn(),
+          },
+        },
+      })),
     },
   },
 }));
 
-// Mock user data
-const mockUser: User = {
-  id: '123e4567-e89b-12d3-a456-426614174000',
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-};
-
 // Mock session data
-const mockSession = {
+const mockSession: Session = {
+  access_token: 'mock-access-token',
+  refresh_token: 'mock-refresh-token',
+  expires_in: 3600,
+  token_type: 'bearer',
   user: {
     id: '123e4567-e89b-12d3-a456-426614174000',
     email: 'john.doe@example.com',
     user_metadata: {
       name: 'John Doe',
     },
+    app_metadata: {},
+    aud: 'authenticated',
+    created_at: '2023-01-01T00:00:00Z',
   },
 };
 
@@ -137,9 +148,18 @@ describe('initializeAuthUseCase', () => {
     test('should handle SIGNED_IN event', async () => {
       // Arrange
       mockGetCurrentUser.mockResolvedValue(mockUser);
-      let authStateCallback: any;
+      let authStateCallback!: (event: AuthChangeEvent, session: Session | null) => void;
       mockOnAuthStateChange.mockImplementation((callback) => {
         authStateCallback = callback;
+        return {
+          data: {
+            subscription: {
+              id: 'mock-subscription-id',
+              callback: vi.fn(),
+              unsubscribe: vi.fn(),
+            },
+          },
+        };
       });
       
       // Act
@@ -160,18 +180,34 @@ describe('initializeAuthUseCase', () => {
 
     test('should handle SIGNED_IN event with email fallback for name', async () => {
       // Arrange
-      const sessionWithoutName = {
+      const sessionWithoutName: Session = {
+        access_token: 'mock-access-token',
+        refresh_token: 'mock-refresh-token',
+        expires_in: 3600,
+        token_type: 'bearer',
         user: {
           id: '123',
           email: 'test@example.com',
           user_metadata: {},
+          app_metadata: {},
+          aud: 'authenticated',
+          created_at: '2023-01-01T00:00:00Z',
         },
       };
       
       mockGetCurrentUser.mockResolvedValue(mockUser);
-      let authStateCallback: any;
+      let authStateCallback!: (event: AuthChangeEvent, session: Session | null) => void;
       mockOnAuthStateChange.mockImplementation((callback) => {
         authStateCallback = callback;
+        return {
+          data: {
+            subscription: {
+              id: 'mock-subscription-id',
+              callback: vi.fn(),
+              unsubscribe: vi.fn(),
+            },
+          },
+        };
       });
       
       // Act
@@ -185,18 +221,34 @@ describe('initializeAuthUseCase', () => {
 
     test('should handle SIGNED_IN event with default name fallback', async () => {
       // Arrange
-      const sessionWithoutEmailOrName = {
+      const sessionWithoutEmailOrName: Session = {
+        access_token: 'mock-access-token',
+        refresh_token: 'mock-refresh-token',
+        expires_in: 3600,
+        token_type: 'bearer',
         user: {
           id: '123',
-          email: null,
+          email: undefined,
           user_metadata: {},
+          app_metadata: {},
+          aud: 'authenticated',
+          created_at: '2023-01-01T00:00:00Z',
         },
       };
       
       mockGetCurrentUser.mockResolvedValue(mockUser);
-      let authStateCallback: any;
+      let authStateCallback!: (event: AuthChangeEvent, session: Session | null) => void;
       mockOnAuthStateChange.mockImplementation((callback) => {
         authStateCallback = callback;
+        return {
+          data: {
+            subscription: {
+              id: 'mock-subscription-id',
+              callback: vi.fn(),
+              unsubscribe: vi.fn(),
+            },
+          },
+        };
       });
       
       // Act
@@ -211,9 +263,18 @@ describe('initializeAuthUseCase', () => {
     test('should handle SIGNED_OUT event', async () => {
       // Arrange
       mockGetCurrentUser.mockResolvedValue(mockUser);
-      let authStateCallback: any;
+      let authStateCallback!: (event: AuthChangeEvent, session: Session | null) => void;
       mockOnAuthStateChange.mockImplementation((callback) => {
         authStateCallback = callback;
+        return {
+          data: {
+            subscription: {
+              id: 'mock-subscription-id',
+              callback: vi.fn(),
+              unsubscribe: vi.fn(),
+            },
+          },
+        };
       });
       
       // Set initial authenticated state
@@ -233,9 +294,18 @@ describe('initializeAuthUseCase', () => {
       // Arrange
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
       mockGetCurrentUser.mockResolvedValue(mockUser);
-      let authStateCallback: any;
+      let authStateCallback!: (event: AuthChangeEvent, session: Session | null) => void;
       mockOnAuthStateChange.mockImplementation((callback) => {
         authStateCallback = callback;
+        return {
+          data: {
+            subscription: {
+              id: 'mock-subscription-id',
+              callback: vi.fn(),
+              unsubscribe: vi.fn(),
+            },
+          },
+        };
       });
       
       // Act

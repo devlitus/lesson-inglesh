@@ -4,7 +4,7 @@
  */
 
 import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LoginPage } from '../LoginPage';
 import { useUserStore } from '../../../infrastructure/store/userStore';
@@ -361,7 +361,7 @@ describe('LoginPage Component', () => {
 
   describe('Error Handling', () => {
     test('should display AuthError message', async () => {
-      const authError = new AuthError('Invalid credentials', AuthErrorType.INVALID_CREDENTIALS);
+      const authError = new AuthError(AuthErrorType.INVALID_CREDENTIALS, 'Invalid credentials');
       mockSignInUseCase.mockRejectedValue(authError);
       
       render(<LoginPage />);
@@ -374,7 +374,7 @@ describe('LoginPage Component', () => {
       await user.type(passwordInput, 'password123');
       await user.click(submitButton);
       
-      expect(await screen.findByText('INVALID_CREDENTIALS')).toBeInTheDocument();
+      expect(await screen.findByText('Invalid credentials')).toBeInTheDocument();
       expect(screen.getByRole('alert')).toBeInTheDocument();
     });
 
@@ -395,7 +395,7 @@ describe('LoginPage Component', () => {
     });
 
     test('should clear errors when form is reset', async () => {
-      const authError = new AuthError('INVALID_CREDENTIALS', AuthErrorType.INVALID_CREDENTIALS);
+      const authError = new AuthError(AuthErrorType.INVALID_CREDENTIALS, 'Invalid credentials');
       mockSignInUseCase.mockRejectedValue(authError);
       
       render(<LoginPage />);
@@ -408,12 +408,12 @@ describe('LoginPage Component', () => {
       await user.type(passwordInput, 'password123');
       await user.click(submitButton);
       
-      expect(await screen.findByText('INVALID_CREDENTIALS')).toBeInTheDocument();
+      expect(await screen.findByText('Invalid credentials')).toBeInTheDocument();
       
       // Switch mode to trigger form reset
       await user.click(screen.getByRole('button', { name: /regístrate aquí/i }));
       
-      expect(screen.queryByText('INVALID_CREDENTIALS')).not.toBeInTheDocument();
+      expect(screen.queryByText('Invalid credentials')).not.toBeInTheDocument();
     });
   });
 
@@ -485,7 +485,7 @@ describe('LoginPage Component', () => {
     });
 
     test('should have live region for general errors', async () => {
-      const authError = new AuthError('INVALID_CREDENTIALS', AuthErrorType.INVALID_CREDENTIALS);
+      const authError = new AuthError(AuthErrorType.INVALID_CREDENTIALS, 'Invalid credentials');
       mockSignInUseCase.mockRejectedValue(authError);
       
       render(<LoginPage />);

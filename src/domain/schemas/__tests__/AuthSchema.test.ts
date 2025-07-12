@@ -141,7 +141,7 @@ describe('AuthSchema Validation', () => {
       it('rechaza objeto sin email', () => {
         const invalidData = {
           password: 'password123'
-        } as any;
+        } as Partial<{ email: string; password: string }>;
 
         const result = SignInSchema.safeParse(invalidData);
         
@@ -155,7 +155,7 @@ describe('AuthSchema Validation', () => {
       it('rechaza objeto sin password', () => {
         const invalidData = {
           email: 'usuario@ejemplo.com'
-        } as any;
+        } as Partial<{ email: string; password: string }>;
 
         const result = SignInSchema.safeParse(invalidData);
         
@@ -288,7 +288,7 @@ describe('AuthSchema Validation', () => {
         const invalidData = {
           email: 'usuario@ejemplo.com',
           password: 'password123'
-        } as any;
+        } as Partial<{ email: string; password: string; confirmPassword: string }>;
 
         const result = SignUpSchema.safeParse(invalidData);
         

@@ -1,13 +1,7 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import { useUserStore } from '../userStore';
-import type { User } from '../../../domain/entities/User';
+import { mockUser } from "../../../mocks";
 
-// Mock user data
-const mockUser: User = {
-  id: '123e4567-e89b-12d3-a456-426614174000',
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-};
 
 describe('User Store', () => {
   beforeEach(() => {

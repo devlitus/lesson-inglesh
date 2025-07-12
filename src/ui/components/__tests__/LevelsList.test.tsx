@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { LevelsList } from '../LevelsList';
@@ -12,6 +11,16 @@ vi.mock('../../../infrastructure/store/selectionStore');
 
 const mockUseLevelsAutoLoad = useLevelsAutoLoad as ReturnType<typeof vi.mocked<typeof useLevelsAutoLoad>>;
 const mockUseSelection = useSelection as ReturnType<typeof vi.mocked<typeof useSelection>>;
+
+const mockLevel = {
+  id: '1',
+  title: 'Beginner',
+  sub_title: 'Start your journey',
+  description: 'Perfect for beginners who want to start learning English',
+  feature: 'Basic vocabulary and grammar',
+  icon: '🌱',
+  color_scheme: '#10B981'
+};
 
 // Mock data
 const mockLevels: Level[] = [
@@ -54,11 +63,16 @@ describe('LevelsList Component - Integration Tests', () => {
     
     // Default mock setup
     mockUseSelection.mockReturnValue({
+      selection: { level: null, topic: null, user: null },
+      level: null,
+      topic: null,
+      user: null,
+      setSelected: vi.fn(),
       updateLevel: mockUpdateLevel,
-      selectedLevel: null,
-      selectedTopic: null,
       updateTopic: vi.fn(),
+      updateUser: vi.fn(),
       clearSelection: vi.fn(),
+      hasCompleteSelection: false,
       getSelection: vi.fn()
     });
   });
@@ -72,7 +86,8 @@ describe('LevelsList Component - Integration Tests', () => {
         error: null,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       });
 
       render(<LevelsList />);
@@ -89,7 +104,8 @@ describe('LevelsList Component - Integration Tests', () => {
         error: null,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       });
 
       const { container } = render(<LevelsList className="custom-class" />);
@@ -109,7 +125,8 @@ describe('LevelsList Component - Integration Tests', () => {
         error: errorMessage,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       });
 
       render(<LevelsList />);
@@ -128,7 +145,8 @@ describe('LevelsList Component - Integration Tests', () => {
         error: null,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       });
 
       render(<LevelsList />);
@@ -147,7 +165,8 @@ describe('LevelsList Component - Integration Tests', () => {
         error: null,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       });
     });
 
@@ -196,21 +215,20 @@ describe('LevelsList Component - Integration Tests', () => {
         error: null,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       });
     });
 
     test('should handle level click and call appropriate functions', async () => {
       render(<LevelsList onLevelSelect={mockOnLevelSelect} />);
 
-      const firstLevelCard = screen.getByText(mockLevels[0].title).closest('[role="button"], button, [onClick], [clickable]') || 
-                            screen.getByText(mockLevels[0].title).closest('div');
+      const firstLevelCard = screen.getByText(mockLevels[0].title).closest('div');
       
       if (firstLevelCard) {
         fireEvent.click(firstLevelCard);
       } else {
-        // Fallback: click on the title directly
-        fireEvent.click(screen.getByText(mockLevels[0].title));
+        throw new Error('Level card not found');
       }
 
       await waitFor(() => {
@@ -224,7 +242,6 @@ describe('LevelsList Component - Integration Tests', () => {
       render(<LevelsList />);
 
       const firstLevelCard = screen.getByText(mockLevels[0].title).closest('div');
-      
       if (firstLevelCard) {
         fireEvent.click(firstLevelCard);
       }
@@ -246,7 +263,8 @@ describe('LevelsList Component - Integration Tests', () => {
         error: null,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       });
 
       render(<LevelsList />);
@@ -266,7 +284,8 @@ describe('LevelsList Component - Integration Tests', () => {
         error: null,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       });
 
       render(<LevelsList />);
@@ -285,14 +304,15 @@ describe('LevelsList Component - Integration Tests', () => {
         error: null,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       };
       
       mockUseLevelsAutoLoad.mockReturnValue(mockHookReturn);
 
       render(<LevelsList />);
 
-      expect(mockUseLevelsAutoLoad).toHaveBeenCalled();
+      expect(mockUseSelection).toHaveBeenCalled();
       expect(screen.getByText('Niveles Disponibles')).toBeInTheDocument();
     });
 
@@ -304,12 +324,13 @@ describe('LevelsList Component - Integration Tests', () => {
         error: null,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       });
 
       render(<LevelsList />);
 
-      expect(mockUseSelection).toHaveBeenCalled();
+      expect(mockUseLevelsAutoLoad).toHaveBeenCalled();
     });
   });
 
@@ -322,7 +343,8 @@ describe('LevelsList Component - Integration Tests', () => {
         error: null,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       });
     });
 
@@ -373,7 +395,8 @@ describe('LevelsList Component - Integration Tests', () => {
         error: null,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       });
 
       render(<LevelsList />);
@@ -399,7 +422,8 @@ describe('LevelsList Component - Integration Tests', () => {
         error: null,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       });
 
       render(<LevelsList />);
@@ -411,12 +435,13 @@ describe('LevelsList Component - Integration Tests', () => {
     test('should not crash with undefined selectedLevel', () => {
       mockUseLevelsAutoLoad.mockReturnValue({
         levels: mockLevels,
-        selectedLevel: undefined as any,
+        selectedLevel: mockLevel,
         isLoading: false,
         error: null,
         selectLevel: mockSelectLevel,
         loadLevels: vi.fn(),
-        clearLevels: vi.fn()
+        loadLevelById: vi.fn(),
+        clearError: vi.fn()
       });
 
       expect(() => render(<LevelsList />)).not.toThrow();

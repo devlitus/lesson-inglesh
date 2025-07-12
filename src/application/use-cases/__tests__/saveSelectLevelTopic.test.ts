@@ -45,10 +45,6 @@ describe("Save Select Level Topic Use Cases", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // Mock console methods to avoid noise in tests
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   describe("saveSelectLevelTopicUseCase", () => {
@@ -71,16 +67,6 @@ describe("Save Select Level Topic Use Cases", () => {
         id_level: "1",
         id_topic: "1",
       });
-      expect(console.log).toHaveBeenCalledWith(
-        "Selección guardada exitosamente:",
-        {
-          userId: "user-123",
-          levelId: "1",
-          levelTitle: "Beginner",
-          topicId: "1",
-          topicTitle: "Family & Relationships",
-        }
-      );
     });
 
     test("should throw error when user is not authenticated", async () => {

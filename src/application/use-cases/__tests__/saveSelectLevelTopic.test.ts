@@ -69,7 +69,7 @@ describe("Save Select Level Topic Use Cases", () => {
       ).toHaveBeenCalledWith({
         id_user: "user-123",
         id_level: "1",
-        id_topic: "topic-1",
+        id_topic: "1",
       });
       expect(console.log).toHaveBeenCalledWith(
         "Selección guardada exitosamente:",
@@ -77,8 +77,8 @@ describe("Save Select Level Topic Use Cases", () => {
           userId: "user-123",
           levelId: "1",
           levelTitle: "Beginner",
-          topicId: "topic-1",
-          topicTitle: "Grammar",
+          topicId: "1",
+          topicTitle: "Family & Relationships",
         }
       );
     });

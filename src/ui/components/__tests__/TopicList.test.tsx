@@ -1,10 +1,10 @@
-import React from 'react';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { TopicList } from '../TopicList';
 import { useTopicsAutoLoad } from '../../../application/hooks/useTopics';
 import { useSelection } from '../../../infrastructure/store/selectionStore';
 import type { Topic } from '../../../domain/entities/Topic';
+import { mockTopics } from '../../../mocks';
 
 // Mock hooks
 vi.mock('../../../application/hooks/useTopics');
@@ -16,33 +16,6 @@ vi.mock('../../../design-system/utils', () => ({
 const mockUseTopicsAutoLoad = useTopicsAutoLoad as ReturnType<typeof vi.mocked<typeof useTopicsAutoLoad>>;
 const mockUseSelection = useSelection as ReturnType<typeof vi.mocked<typeof useSelection>>;
 
-// Mock data
-const mockTopics: Topic[] = [
-  {
-    id: '1',
-    title: 'Family & Relationships',
-    description: 'Learn vocabulary about family members and relationships',
-    icon: '👨‍👩‍👧‍👦',
-    color_scheme: '#10B981',
-    id_level: 'beginner'
-  },
-  {
-    id: '2',
-    title: 'Food & Cooking',
-    description: 'Discover culinary vocabulary and cooking terms',
-    icon: '🍳',
-    color_scheme: '#F59E0B',
-    id_level: 'beginner'
-  },
-  {
-    id: '3',
-    title: 'Travel & Transportation',
-    description: 'Essential vocabulary for traveling and getting around',
-    icon: '✈️',
-    color_scheme: '#3B82F6',
-    id_level: 'intermediate'
-  }
-];
 
 const mockUpdateTopic = vi.fn();
 const mockSelectTopic = vi.fn();
@@ -54,12 +27,17 @@ describe('TopicList Component - Integration Tests', () => {
     
     // Default mock setup
     mockUseSelection.mockReturnValue({
-      updateTopic: mockUpdateTopic,
-      selectedLevel: null,
-      selectedTopic: null,
+      selection: { level: null, topic: null, user: null },
+      level: null,
+      topic: null,
+      user: null,
+      setSelected: vi.fn(),
       updateLevel: vi.fn(),
+      updateTopic: mockUpdateTopic,
+      updateUser: vi.fn(),
       clearSelection: vi.fn(),
-      getSelection: vi.fn()
+      hasCompleteSelection: false,
+      getSelection: vi.fn(() => ({ level: null, topic: null, user: null }))
     });
   });
 
@@ -72,7 +50,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: false,
+        topicsCount: 0
       });
 
       render(<TopicList />);
@@ -92,7 +74,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: false,
+        topicsCount: 0
       });
 
       const { container } = render(<TopicList className="custom-class" />);
@@ -112,7 +98,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: errorMessage,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: false,
+        topicsCount: 0
       });
 
       render(<TopicList />);
@@ -135,7 +125,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: false,
+        topicsCount: 0
       });
 
       render(<TopicList />);
@@ -157,7 +151,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: mockTopics.length
       });
     });
 
@@ -167,10 +165,8 @@ describe('TopicList Component - Integration Tests', () => {
       // Check all topics are rendered
       mockTopics.forEach(topic => {
         expect(screen.getByText(topic.title)).toBeInTheDocument();
-        if (topic.description) {
-          expect(screen.getByText(topic.description)).toBeInTheDocument();
-        }
-        expect(screen.getByText(topic.icon)).toBeInTheDocument();
+        expect(screen.getByText(topic.description ?? 'description')).toBeInTheDocument();
+        expect(screen.getByText(topic.icon ?? '🧪')).toBeInTheDocument();
       });
     });
 
@@ -178,7 +174,8 @@ describe('TopicList Component - Integration Tests', () => {
       render(<TopicList />);
 
       mockTopics.forEach(topic => {
-        expect(screen.getByText(topic.icon)).toBeInTheDocument();
+        expect(screen.getByText(topic.icon ?? '🧪')).toBeInTheDocument();
+
       });
     });
 
@@ -195,8 +192,7 @@ describe('TopicList Component - Integration Tests', () => {
         title: 'Test Topic',
         description: '',
         icon: '🧪',
-        color_scheme: '#000000',
-        id_level: 'test'
+        color_scheme: '#000000'
       };
 
       mockUseTopicsAutoLoad.mockReturnValue({
@@ -206,7 +202,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: 1
       });
 
       render(<TopicList />);
@@ -225,7 +225,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: mockTopics.length
       });
     });
 
@@ -281,7 +285,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: mockTopics.length
       });
 
       render(<TopicList selectedTopicId={mockTopics[1].id} />);
@@ -302,7 +310,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: mockTopics.length
       });
 
       render(<TopicList />);
@@ -322,7 +334,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: mockTopics.length
       });
 
       render(<TopicList />);
@@ -339,7 +355,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: mockTopics.length
       });
 
       render(<TopicList selectedTopicId={mockTopics[1].id} />);
@@ -363,7 +383,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: mockTopics.length
       };
       
       mockUseTopicsAutoLoad.mockReturnValue(mockHookReturn);
@@ -382,7 +406,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: mockTopics.length
       });
 
       render(<TopicList />);
@@ -400,7 +428,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: mockTopics.length
       });
     });
 
@@ -426,8 +458,7 @@ describe('TopicList Component - Integration Tests', () => {
         title: 'No Color Topic',
         description: 'Topic without color scheme',
         icon: '⚪',
-        color_scheme: '',
-        id_level: 'test'
+        color_scheme: ''
       };
 
       mockUseTopicsAutoLoad.mockReturnValue({
@@ -437,7 +468,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: 1
       });
 
       expect(() => render(<TopicList />)).not.toThrow();
@@ -454,7 +489,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: mockTopics.length
       });
     });
 
@@ -506,7 +545,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: false,
+        topicsCount: 0
       });
 
       render(<TopicList />);
@@ -517,12 +560,16 @@ describe('TopicList Component - Integration Tests', () => {
     test('should not crash with undefined currentTopic', () => {
       mockUseTopicsAutoLoad.mockReturnValue({
         topics: mockTopics,
-        currentTopic: undefined as any,
+        currentTopic: undefined as unknown as Topic | null,
         isLoading: false,
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: mockTopics.length
       });
 
       expect(() => render(<TopicList />)).not.toThrow();
@@ -536,7 +583,6 @@ describe('TopicList Component - Integration Tests', () => {
         description: '',
         icon: '',
         color_scheme: '',
-        id_level: 'test'
       };
 
       mockUseTopicsAutoLoad.mockReturnValue({
@@ -546,7 +592,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: 1
       });
 
       expect(() => render(<TopicList />)).not.toThrow();
@@ -570,7 +620,11 @@ describe('TopicList Component - Integration Tests', () => {
         error: null,
         selectTopic: mockSelectTopic,
         loadTopics: vi.fn(),
-        clearTopics: vi.fn()
+        loadTopicById: vi.fn(),
+        clearTopicsError: vi.fn(),
+        getTopicFromState: vi.fn(),
+        hasTopics: true,
+        topicsCount: manyTopics.length
       });
 
       render(<TopicList />);

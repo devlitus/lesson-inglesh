@@ -126,7 +126,7 @@ export function useTooltipPosition(
 
     setPosition({ top, left });
     setActualPlacement(finalPlacement);
-  }, [isOpen, placement, offset]);
+  }, [isOpen, placement, offset, tooltipRef, triggerRef]);
 
   return { position, actualPlacement };
 }

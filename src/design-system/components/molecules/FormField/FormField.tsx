@@ -25,7 +25,9 @@ export interface FormFieldProps extends Omit<InputProps, 'id' | 'aria-describedb
   /** Validar cuando el campo pierde el foco */
   validateOnBlur?: boolean;
   /** Contenedor del campo */
-  containerProps?: React.HTMLAttributes<HTMLDivElement>;
+  containerProps?: React.HTMLAttributes<HTMLDivElement> & {
+    [key: `data-${string}`]: string;
+  };
 }
 
 /**

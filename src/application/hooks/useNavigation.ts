@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { ROUTES, type AppRoute } from '../navigation/routes';
 
@@ -8,11 +9,11 @@ import { ROUTES, type AppRoute } from '../navigation/routes';
 export function useNavigation() {
   const navigate = useNavigate();
 
-  const goToLogin = () => navigate(ROUTES.LOGIN);
-  const goToDashboard = () => navigate(ROUTES.DASHBOARD);
-  const goToLesson = () => navigate(ROUTES.LESSON);
-  const goBack = () => navigate(-1);
-  const goTo = (path: AppRoute) => navigate(path);
+  const goToLogin = useCallback(() => navigate(ROUTES.LOGIN), [navigate]);
+  const goToDashboard = useCallback(() => navigate(ROUTES.DASHBOARD), [navigate]);
+  const goToLesson = useCallback(() => navigate(ROUTES.LESSON), [navigate]);
+  const goBack = useCallback(() => navigate(-1), [navigate]);
+  const goTo = useCallback((path: AppRoute) => navigate(path), [navigate]);
 
   return {
     goToLogin,

@@ -24,7 +24,7 @@ export function LessonPage() {
   } : undefined;
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <div data-testid="lesson-page" className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
       {/* Header */}
       <Header 
         logo={

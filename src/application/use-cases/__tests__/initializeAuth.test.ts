@@ -6,16 +6,16 @@
 import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
 import { initializeAuthUseCase } from '../initializeAuth';
 import { useUserStore } from '../../../infrastructure/store/userStore';
-import { SupabaseAuthAdapter } from '../../../infrastructure/adapters/SupabaseAuthAdapter';
+import { SupabaseUserAdapter } from '../../../infrastructure/adapters/SupabaseUserAdapter';
 import { supabase } from '../../../shared/config/supabaseClient';
 import { mockUser} from '../../../mocks'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 
 
-// Mock de SupabaseAuthAdapter
-vi.mock('../../../infrastructure/adapters/SupabaseAuthAdapter', () => ({
-  SupabaseAuthAdapter: {
+// Mock de SupabaseUserAdapter
+vi.mock('../../../infrastructure/adapters/SupabaseUserAdapter', () => ({
+  SupabaseUserAdapter: {
     getCurrentUser: vi.fn(),
   },
 }));
@@ -56,7 +56,7 @@ const mockSession: Session = {
 };
 
 describe('initializeAuthUseCase', () => {
-  const mockGetCurrentUser = vi.mocked(SupabaseAuthAdapter.getCurrentUser);
+  const mockGetCurrentUser = vi.mocked(SupabaseUserAdapter.getCurrentUser);
   const mockOnAuthStateChange = vi.mocked(supabase.auth.onAuthStateChange);
 
   beforeEach(() => {
@@ -66,8 +66,7 @@ describe('initializeAuthUseCase', () => {
     // Reset user store
     useUserStore.setState({
       user: null,
-      isAuthenticated: false,
-      isLoading: false,
+      loading: false,
     });
   });
 
@@ -84,13 +83,13 @@ describe('initializeAuthUseCase', () => {
       const initPromise = initializeAuthUseCase();
       
       // Assert: Loading should be true during execution
-      expect(useUserStore.getState().isLoading).toBe(true);
+      expect(useUserStore.getState().loading).toBe(true);
       
       // Wait for completion
       await initPromise;
       
       // Assert: Loading should be false after completion
-      expect(useUserStore.getState().isLoading).toBe(false);
+      expect(useUserStore.getState().loading).toBe(false);
     });
 
     test('should set user when getCurrentUser returns a user', async () => {
@@ -103,8 +102,7 @@ describe('initializeAuthUseCase', () => {
       // Assert
       const state = useUserStore.getState();
       expect(state.user).toEqual(mockUser);
-      expect(state.isAuthenticated).toBe(true);
-      expect(state.isLoading).toBe(false);
+      expect(state.loading).toBe(false);
     });
 
     test('should set user to null when getCurrentUser returns null', async () => {
@@ -117,8 +115,7 @@ describe('initializeAuthUseCase', () => {
       // Assert
       const state = useUserStore.getState();
       expect(state.user).toBeNull();
-      expect(state.isAuthenticated).toBe(false);
-      expect(state.isLoading).toBe(false);
+      expect(state.loading).toBe(false);
     });
 
     test('should setup auth state change listener when user exists', async () => {
@@ -175,7 +172,7 @@ describe('initializeAuthUseCase', () => {
         name: mockSession.user.user_metadata.name,
         email: mockSession.user.email,
       });
-      expect(state.isAuthenticated).toBe(true);
+      // User is set, so authentication is implied
     });
 
     test('should handle SIGNED_IN event with email fallback for name', async () => {
@@ -287,7 +284,6 @@ describe('initializeAuthUseCase', () => {
       // Assert
       const state = useUserStore.getState();
       expect(state.user).toBeNull();
-      expect(state.isAuthenticated).toBe(false);
     });
 
     test('should handle TOKEN_REFRESHED event', async () => {
@@ -337,8 +333,7 @@ describe('initializeAuthUseCase', () => {
       
       const state = useUserStore.getState();
       expect(state.user).toBeNull();
-      expect(state.isAuthenticated).toBe(false);
-      expect(state.isLoading).toBe(false);
+      expect(state.loading).toBe(false);
       
       consoleErrorSpy.mockRestore();
     });
@@ -352,7 +347,7 @@ describe('initializeAuthUseCase', () => {
       await initializeAuthUseCase();
       
       // Assert
-      expect(useUserStore.getState().isLoading).toBe(false);
+      expect(useUserStore.getState().loading).toBe(false);
     });
   });
 
@@ -370,8 +365,7 @@ describe('initializeAuthUseCase', () => {
       
       const state = useUserStore.getState();
       expect(state.user).toEqual(mockUser);
-      expect(state.isAuthenticated).toBe(true);
-      expect(state.isLoading).toBe(false);
+      expect(state.loading).toBe(false);
     });
 
     test('should complete full initialization flow with no user', async () => {
@@ -387,8 +381,7 @@ describe('initializeAuthUseCase', () => {
       
       const state = useUserStore.getState();
       expect(state.user).toBeNull();
-      expect(state.isAuthenticated).toBe(false);
-      expect(state.isLoading).toBe(false);
+      expect(state.loading).toBe(false);
     });
   });
 });

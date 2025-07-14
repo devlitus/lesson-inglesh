@@ -148,6 +148,7 @@ describe("Save Select Level Topic Use Cases", () => {
 
     test("should handle adapter error", async () => {
       // Arrange: Mock authenticated user and adapter error
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockUseUserStore.getState.mockReturnValue({ user: mockUser });
       const adapterError = new Error("Database connection failed");
       mockSupabaseSelectLevelTopicAdapter.saveSelection.mockRejectedValue(
@@ -160,14 +161,17 @@ describe("Save Select Level Topic Use Cases", () => {
       ).rejects.toThrow(
         "Error al guardar la selección: Database connection failed"
       );
-      expect(console.error).toHaveBeenCalledWith(
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
         "Error en saveSelectLevelTopicUseCase:",
         adapterError
       );
+      
+      consoleErrorSpy.mockRestore();
     });
 
     test("should handle unknown error", async () => {
       // Arrange: Mock authenticated user and unknown error
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockUseUserStore.getState.mockReturnValue({ user: mockUser });
       mockSupabaseSelectLevelTopicAdapter.saveSelection.mockRejectedValue(
         "Unknown error"
@@ -177,10 +181,12 @@ describe("Save Select Level Topic Use Cases", () => {
       await expect(
         saveSelectLevelTopicUseCase(mockLevel, mockTopic)
       ).rejects.toThrow("Error desconocido al guardar la selección");
-      expect(console.error).toHaveBeenCalledWith(
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
         "Error en saveSelectLevelTopicUseCase:",
         "Unknown error"
       );
+      
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -234,6 +240,7 @@ describe("Save Select Level Topic Use Cases", () => {
 
     test("should handle adapter error", async () => {
       // Arrange: Mock authenticated user and adapter error
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockUseUserStore.getState.mockReturnValue({ user: mockUser });
       const adapterError = new Error("Selection not accessible");
       mockSupabaseSelectLevelTopicAdapter.getLastSelection.mockRejectedValue(
@@ -244,14 +251,17 @@ describe("Save Select Level Topic Use Cases", () => {
       await expect(getLastSelectLevelTopicUseCase()).rejects.toThrow(
         "Error al obtener la última selección: Selection not accessible"
       );
-      expect(console.error).toHaveBeenCalledWith(
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
         "Error en getLastSelectLevelTopicUseCase:",
         adapterError
       );
+      
+      consoleErrorSpy.mockRestore();
     });
 
     test("should handle unknown error", async () => {
       // Arrange: Mock authenticated user and unknown error
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockUseUserStore.getState.mockReturnValue({ user: mockUser });
       mockSupabaseSelectLevelTopicAdapter.getLastSelection.mockRejectedValue(
         "Unknown error"
@@ -261,10 +271,12 @@ describe("Save Select Level Topic Use Cases", () => {
       await expect(getLastSelectLevelTopicUseCase()).rejects.toThrow(
         "Error desconocido al obtener la última selección"
       );
-      expect(console.error).toHaveBeenCalledWith(
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
         "Error en getLastSelectLevelTopicUseCase:",
         "Unknown error"
       );
+      
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -330,6 +342,7 @@ describe("Save Select Level Topic Use Cases", () => {
 
     test("should handle adapter error", async () => {
       // Arrange: Mock authenticated user and adapter error
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockUseUserStore.getState.mockReturnValue({ user: mockUser });
       const adapterError = new Error("Selections not accessible");
       mockSupabaseSelectLevelTopicAdapter.getUserSelections.mockRejectedValue(
@@ -340,14 +353,17 @@ describe("Save Select Level Topic Use Cases", () => {
       await expect(getUserSelectLevelTopicUseCase()).rejects.toThrow(
         "Error al obtener las selecciones del usuario: Selections not accessible"
       );
-      expect(console.error).toHaveBeenCalledWith(
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
         "Error en getUserSelectLevelTopicUseCase:",
         adapterError
       );
+      
+      consoleErrorSpy.mockRestore();
     });
 
     test("should handle unknown error", async () => {
       // Arrange: Mock authenticated user and unknown error
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockUseUserStore.getState.mockReturnValue({ user: mockUser });
       mockSupabaseSelectLevelTopicAdapter.getUserSelections.mockRejectedValue(
         "Unknown error"
@@ -357,10 +373,12 @@ describe("Save Select Level Topic Use Cases", () => {
       await expect(getUserSelectLevelTopicUseCase()).rejects.toThrow(
         "Error desconocido al obtener las selecciones del usuario"
       );
-      expect(console.error).toHaveBeenCalledWith(
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
         "Error en getUserSelectLevelTopicUseCase:",
         "Unknown error"
       );
+      
+      consoleErrorSpy.mockRestore();
     });
   });
 

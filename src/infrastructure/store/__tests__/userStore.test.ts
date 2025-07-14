@@ -14,8 +14,7 @@ describe('User Store', () => {
     const state = useUserStore.getState();
     
     expect(state.user).toBeNull();
-    expect(state.isAuthenticated).toBe(false);
-    expect(state.isLoading).toBe(false);
+    expect(state.loading).toBe(false);
   });
 
   test('should set user and update authentication state', () => {
@@ -24,58 +23,55 @@ describe('User Store', () => {
     // Act: Set user
     setUser(mockUser);
     
-    // Assert: User is set and authenticated
+    // Assert: User is set
     const state = useUserStore.getState();
     expect(state.user).toEqual(mockUser);
-    expect(state.isAuthenticated).toBe(true);
   });
 
-  test('should set user to null and update authentication state', () => {
+  test('should handle null user correctly', () => {
     const { setUser } = useUserStore.getState();
     
-    // Arrange: Set user first
+    // Arrange: Set a user first
     setUser(mockUser);
-    expect(useUserStore.getState().isAuthenticated).toBe(true);
+    expect(useUserStore.getState().user).not.toBeNull();
     
     // Act: Set user to null
     setUser(null);
     
-    // Assert: User is null and not authenticated
+    // Assert: User is null
     const state = useUserStore.getState();
     expect(state.user).toBeNull();
-    expect(state.isAuthenticated).toBe(false);
   });
 
-  test('should logout and clear user data', () => {
+  test('should clear user on logout', () => {
     const { setUser, logout } = useUserStore.getState();
     
-    // Arrange: Set user first
+    // Arrange: Set a user first
     setUser(mockUser);
-    expect(useUserStore.getState().isAuthenticated).toBe(true);
+    expect(useUserStore.getState().user).not.toBeNull();
     
     // Act: Logout
     logout();
     
-    // Assert: User is cleared and not authenticated
+    // Assert: User is cleared
     const state = useUserStore.getState();
     expect(state.user).toBeNull();
-    expect(state.isAuthenticated).toBe(false);
   });
 
-  test('should set loading state', () => {
+  test('should update loading state', () => {
     const { setLoading } = useUserStore.getState();
     
     // Act: Set loading to true
     setLoading(true);
     
-    // Assert: Loading state is true
-    expect(useUserStore.getState().isLoading).toBe(true);
+    // Assert: Loading is true
+    expect(useUserStore.getState().loading).toBe(true);
     
     // Act: Set loading to false
     setLoading(false);
     
-    // Assert: Loading state is false
-    expect(useUserStore.getState().isLoading).toBe(false);
+    // Assert: Loading is false
+    expect(useUserStore.getState().loading).toBe(false);
   });
 
   test('should maintain user state after setting loading', () => {
@@ -90,7 +86,6 @@ describe('User Store', () => {
     // Assert: User state is preserved
     const state = useUserStore.getState();
     expect(state.user).toEqual(mockUser);
-    expect(state.isAuthenticated).toBe(true);
-    expect(state.isLoading).toBe(true);
+    expect(state.loading).toBe(true);
   });
 });

@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 import { useUserStore } from '../../infrastructure/store/userStore';
-import { initializeAuthUseCase } from '../use-cases/initializeAuth';
 import { hasUserSelectionUseCase } from '../use-cases/checkUserSelection';
 import { ROUTES } from './routes';
 import { Spinner } from '../../design-system';
 import { ProtectedRoute } from '../../ui/components';
-import { LoginPage } from '../../ui/pages/LoginPage';
+import { UserLoginPage } from '../../ui/pages/UserLoginPage';
 import { DashboardPage } from '../../ui/pages/DashboardPage';
 import { LessonPage } from '../../ui/pages/LessonPage';
 
@@ -16,18 +15,14 @@ import { LessonPage } from '../../ui/pages/LessonPage';
  * Inicializa la autenticación al cargar
  */
 export function AppRouter() {
-  const { isAuthenticated, isLoading } = useUserStore();
+  const { user, loading } = useUserStore();
+  const isAuthenticated = !!user;
   const [hasSelection, setHasSelection] = useState<boolean | null>(null);
   const [isCheckingSelection, setIsCheckingSelection] = useState(false);
 
   useEffect(() => {
-    // Inicializar autenticación al cargar la app
-    initializeAuthUseCase();
-  }, []);
-
-  useEffect(() => {
     // Verificar selección del usuario cuando esté autenticado
-    if (isAuthenticated && !isLoading) {
+    if (isAuthenticated && !loading) {
       setIsCheckingSelection(true);
       hasUserSelectionUseCase()
         .then(setHasSelection)
@@ -36,10 +31,10 @@ export function AppRouter() {
     } else {
       setHasSelection(null);
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, loading]);
 
   // Mostrar spinner mientras se verifica la autenticación o la selección
-  if (isLoading || (isAuthenticated && isCheckingSelection)) {
+  if (loading || (isAuthenticated && isCheckingSelection)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Spinner size="lg" />
@@ -56,7 +51,7 @@ export function AppRouter() {
           element={
             isAuthenticated ? (
               hasSelection ? <Navigate to={ROUTES.LESSON} replace /> : <Navigate to={ROUTES.DASHBOARD} replace />
-            ) : <LoginPage />
+            ) : <UserLoginPage />
           } 
         />
         

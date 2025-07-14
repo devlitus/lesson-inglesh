@@ -10,20 +10,23 @@ import { Button } from '../../design-system/components/atoms';
  * Componente simplificado para guardar la selección de Level y Topic
  */
 export function SelectionSaver() {
-  const { user, isAuthenticated } = useUserStore();
+  const { user } = useUserStore();
+  const isAuthenticated = user?.isAuthenticated ?? false;
   const { level, topic, hasCompleteSelection, updateUser } = useSelection();
   const { saveSelection, isLoading } = useSelectLevelTopic();
   const { goToLesson } = useNavigation();
 
   // Sincronizar el usuario en el selectionStore cuando cambie
   useEffect(() => {
-    if (user?.id) {
-      updateUser(user.id);
+    // Nota: Necesitaremos ajustar esto ya que user ahora solo tiene name e isAuthenticated
+    // Por ahora, usaremos un ID temporal hasta que se defina cómo obtener el ID del usuario
+    if (user?.isAuthenticated) {
+      updateUser('temp-user-id'); // TODO: Obtener ID real del usuario
     }
-  }, [user?.id, updateUser]);
+  }, [user?.isAuthenticated, updateUser]);
 
   const handleSaveSelection = async () => {
-    if (level && topic && user) {
+    if (level && topic && user?.isAuthenticated) {
       // Crear objetos mock para mantener compatibilidad con el hook existente
       const levelObj = { id: level, title: '', sub_title: '', description: '', feature: '', icon: '', color_scheme: '' };
       const topicObj = { id: topic, title: '', description: '', icon: '', color_scheme: '' };

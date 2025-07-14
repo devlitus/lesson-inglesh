@@ -45,8 +45,7 @@ describe('AppRouter', () => {
     // Reset user store to initial state
     useUserStore.setState({
       user: null,
-      isAuthenticated: false,
-      isLoading: false,
+      loading: false,
     });
     
     // Setup default mock implementations
@@ -61,8 +60,8 @@ describe('AppRouter', () => {
     // Act: Render AppRouter
     render(<AppRouter />);
     
-    // Assert: initializeAuthUseCase was called
-    expect(mockInitializeAuth).toHaveBeenCalledOnce();
+    // Assert: Component renders (no longer using initializeAuth)
+    expect(screen.getByTestId('login-page')).toBeInTheDocument();
   });
 
   test('should show loading spinner when authentication is loading', () => {
@@ -147,8 +146,7 @@ describe('AppRouter', () => {
     // Reset store completely
     useUserStore.setState({
       user: null,
-      isAuthenticated: false,
-      isLoading: false,
+      loading: false,
     });
     
     // Setup mocks
@@ -178,8 +176,7 @@ describe('AppRouter', () => {
     // Reset store completely
     useUserStore.setState({
       user: null,
-      isAuthenticated: false,
-      isLoading: false,
+      loading: false,
     });
     
     // Setup mocks

@@ -237,6 +237,8 @@ export const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
     return (
       <div
         ref={ref}
+        data-testid="spinner"
+        data-size={size}
         className={cn('inline-flex items-center justify-center', className)}
         role="status"
         aria-label={label}

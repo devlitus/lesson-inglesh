@@ -1,7 +1,7 @@
-import type { SignUpInput } from '../domain/schemas/AuthSchema';
+import type { SignUpInput } from '../domain/schemas/UserSchema';
 
 export const validSignUpData: SignUpInput = {
+  name: 'Test User',
   email: 'test@example.com',
-  password: 'password123',
-  confirmPassword: 'password123'
+  password: 'password123'
 };

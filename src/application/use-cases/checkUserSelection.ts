@@ -30,7 +30,7 @@ export async function checkUserSelectionUseCase(): Promise<{
   } catch (error) {
     throw new Error(
       error instanceof Error 
-        ? `Error al verificar selecci?n del usuario: ${error.message}`
+        ? `Error al verificar selección del usuario: ${error.message}`
         : 'Error desconocido al verificar selecci?n del usuario'
     );
   }
@@ -46,7 +46,7 @@ export async function hasUserSelectionUseCase(): Promise<boolean> {
     return result.hasSelection;
   } catch (error) {
     // En caso de error, asumir que no tiene selecci?n para no bloquear la navegaci?n
-    console.error('Error al verificar selecci?n del usuario:', error);
+    console.error('Error al verificar selección del usuario:', error);
     return false;
   }
 }

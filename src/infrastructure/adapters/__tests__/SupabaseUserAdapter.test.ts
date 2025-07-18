@@ -66,8 +66,8 @@ describe('SupabaseUserAdapter', () => {
     mockChain.eq.mockReturnValue(mockChain);
 
     mockFrom.mockReturnValue(mockChain);
-    (supabase.from as any) = mockFrom;
-    (supabase.rpc as any) = mockRpc;
+    (supabase.from as unknown as typeof mockFrom) = mockFrom;
+    (supabase.rpc as unknown as typeof mockRpc) = mockRpc;
   });
 
   afterEach(() => {

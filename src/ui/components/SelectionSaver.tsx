@@ -11,22 +11,20 @@ import { Button } from '../../design-system/components/atoms';
  */
 export function SelectionSaver() {
   const { user } = useUserStore();
-  const isAuthenticated = user?.isAuthenticated ?? false;
+  const isAuthenticated = !!user; // Usuario autenticado si existe
   const { level, topic, hasCompleteSelection, updateUser } = useSelection();
   const { saveSelection, isLoading } = useSelectLevelTopic();
   const { goToLesson } = useNavigation();
 
   // Sincronizar el usuario en el selectionStore cuando cambie
   useEffect(() => {
-    // Nota: Necesitaremos ajustar esto ya que user ahora solo tiene name e isAuthenticated
-    // Por ahora, usaremos un ID temporal hasta que se defina cómo obtener el ID del usuario
-    if (user?.isAuthenticated) {
-      updateUser('temp-user-id'); // TODO: Obtener ID real del usuario
+    if (user) {
+      updateUser(user.id);
     }
-  }, [user?.isAuthenticated, updateUser]);
+  }, [user, updateUser]);
 
   const handleSaveSelection = async () => {
-    if (level && topic && user?.isAuthenticated) {
+    if (level && topic && user) {
       // Crear objetos mock para mantener compatibilidad con el hook existente
       const levelObj = { id: level, title: '', sub_title: '', description: '', feature: '', icon: '', color_scheme: '' };
       const topicObj = { id: topic, title: '', description: '', icon: '', color_scheme: '' };

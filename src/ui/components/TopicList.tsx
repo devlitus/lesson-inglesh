@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useTopicsAutoLoad } from '../../application/hooks/useTopics';
 import { useNavigation } from '../../application/hooks/useNavigation';
 import type { Topic } from '../../domain/entities/Topic';
@@ -5,6 +6,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '../../de
 import { Badge, Button } from '../../design-system/components/atoms';
 import { createGradientStyle } from '../../design-system/utils';
 import { useSelection } from '../../infrastructure/store/selectionStore';
+import { useUserStore } from '../../infrastructure/store/userStore';
+import { useLevelStore } from '../../infrastructure/store/levelStore';
 
 interface TopicListProps {
   onTopicSelect?: (topic: Topic) => void;
@@ -18,8 +21,24 @@ interface TopicListProps {
  */
 export function TopicList({ onTopicSelect, selectedTopicId, className = '' }: TopicListProps) {
   const { topics, currentTopic, isLoading, error, selectTopic } = useTopicsAutoLoad();
-  const { updateTopic } = useSelection();
+  const { updateTopic, selection, updateUser } = useSelection();
+  const { user } = useUserStore();
+  const { selectedLevel } = useLevelStore();
   const { goToLesson } = useNavigation();
+
+  // Sincronizar usuario cuando esté autenticado
+  useEffect(() => {
+    if (user?.id && !selection.user) {
+      updateUser(user.id);
+    }
+  }, [user?.id, selection.user, updateUser]);
+
+  // Validar correctamente: debe haber un level seleccionado, un topic seleccionado Y un usuario
+  const hasCompleteSelection = !!(
+    selectedLevel?.id &&           // Hay un level seleccionado en levelStore
+    currentTopic?.id &&            // Hay un topic seleccionado en topicsStore  
+    user?.id                       // Hay un usuario autenticado
+  );
 
   const handleTopicClick = (topic: Topic) => {
     selectTopic(topic);
@@ -145,10 +164,20 @@ export function TopicList({ onTopicSelect, selectedTopicId, className = '' }: To
           onClick={handleGoToLesson}
           variant="primary"
           size="lg"
-          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+          disabled={!hasCompleteSelection}
+          className={`font-medium px-8 py-3 rounded-lg shadow-lg transition-all duration-200 ${
+            hasCompleteSelection
+              ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white hover:shadow-xl'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
         >
           📚 Generar lección
         </Button>
+        {!hasCompleteSelection && (
+          <p className="text-sm text-gray-500 mt-2">
+            Selecciona un nivel y un topic para generar una lección
+          </p>
+        )}
       </div>
     </div>
   );

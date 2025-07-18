@@ -67,7 +67,7 @@ describe('Check User Selection Use Case', () => {
 
       // Act & Assert: Should throw error with proper message
       await expect(checkUserSelectionUseCase()).rejects.toThrow(
-        'Error al verificar selecci?n del usuario: Database connection failed'
+        'Error al verificar selección del usuario: Database connection failed'
       );
       expect(mockSupabaseAdapter.getLastSelection).toHaveBeenCalledWith(mockUser.id);
     });
@@ -79,7 +79,7 @@ describe('Check User Selection Use Case', () => {
 
       // Act & Assert: Should throw error with generic message
       await expect(checkUserSelectionUseCase()).rejects.toThrow(
-        'Error desconocido al verificar selecci?n del usuario'
+        'Error desconocido al verificar selección del usuario'
       );
     });
   });
@@ -120,7 +120,7 @@ describe('Check User Selection Use Case', () => {
       // Assert: Returns false and logs error
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Error al verificar selecci?n del usuario:',
+        'Error al verificar selección del usuario:',
         expect.any(Error)
       );
       

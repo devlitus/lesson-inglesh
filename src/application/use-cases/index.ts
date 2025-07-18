@@ -1,8 +1,8 @@
 // Casos de uso de autenticación
 export { initializeAuthUseCase } from './initializeAuth';
-export { signInUseCase } from './signIn';
-export { signUpUseCase } from './signUp';
-export { logoutUseCase } from './logout';
+export { signInUserUseCase } from './signInUser';
+export { signUpUserUseCase } from './signUpUser';
+export { logoutUserUseCase } from './logoutUser';
 
 // Casos de uso de levels
 export { getLevelsUseCase, getLevelByIdUseCase } from './getLevels';

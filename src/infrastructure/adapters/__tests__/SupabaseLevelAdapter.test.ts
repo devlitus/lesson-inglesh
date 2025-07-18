@@ -21,7 +21,7 @@ describe("SupabaseLevelAdapter", () => {
     vi.clearAllMocks();
 
     // Configurar la cadena de métodos de Supabase
-    (supabase.from as vi.MockedFunction<typeof supabase.from>).mockReturnValue({
+    (supabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
       select: mockSelect,
     });
 

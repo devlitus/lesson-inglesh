@@ -1,7 +1,8 @@
 import { useTopicsAutoLoad } from '../../application/hooks/useTopics';
+import { useNavigation } from '../../application/hooks/useNavigation';
 import type { Topic } from '../../domain/entities/Topic';
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '../../design-system/components/molecules';
-import { Badge } from '../../design-system/components/atoms';
+import { Badge, Button } from '../../design-system/components/atoms';
 import { createGradientStyle } from '../../design-system/utils';
 import { useSelection } from '../../infrastructure/store/selectionStore';
 
@@ -18,11 +19,16 @@ interface TopicListProps {
 export function TopicList({ onTopicSelect, selectedTopicId, className = '' }: TopicListProps) {
   const { topics, currentTopic, isLoading, error, selectTopic } = useTopicsAutoLoad();
   const { updateTopic } = useSelection();
+  const { goToLesson } = useNavigation();
 
   const handleTopicClick = (topic: Topic) => {
     selectTopic(topic);
     updateTopic(topic.id); // Actualizar el selectionStore
     onTopicSelect?.(topic);
+  };
+
+  const handleGoToLesson = () => {
+    goToLesson();
   };
 
   if (isLoading) {
@@ -131,6 +137,18 @@ export function TopicList({ onTopicSelect, selectedTopicId, className = '' }: To
             </Card>
           );
         })}
+      </div>
+
+      {/* Botón para ir a las lecciones */}
+      <div className="mt-8 text-center">
+        <Button
+          onClick={handleGoToLesson}
+          variant="primary"
+          size="lg"
+          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+        >
+          📚 Generar lección
+        </Button>
       </div>
     </div>
   );

@@ -41,15 +41,6 @@ export async function saveSelectLevelTopicUseCase(
     
     // Guardar la selección en Supabase
     const savedSelection = await SupabaseSelectLevelTopicAdapter.saveSelection(selectionData);
-    
-    console.log('Selección guardada exitosamente:', {
-      userId: user.id,
-      levelId: level.id,
-      levelTitle: level.title,
-      topicId: topic.id,
-      topicTitle: topic.title
-    });
-    
     return savedSelection;
   } catch (error) {
     const errorMessage = error instanceof Error 

@@ -29,50 +29,81 @@
    VITE_SUPABASE_ANON_KEY=tu_clave_anon_aqui
    ```
 
-### 3. Configurar Autenticación en Supabase
+### 3. Configurar Base de Datos
 
-1. En tu Dashboard de Supabase, ve a **Authentication** → **Settings**
-2. Configura los **Site URL** permitidos:
-   - `http://localhost:5173` (desarrollo)
-   - `http://localhost:5174` (desarrollo alternativo)
-   - Tu dominio de producción
+**IMPORTANTE**: Este proyecto usa un sistema de autenticación personalizado con la tabla `public.users` en lugar del sistema de autenticación nativo de Supabase.
 
-3. Habilita los proveedores de autenticación que necesites:
-   - **Email/Password** (recomendado para empezar)
-   - Otros proveedores según tus necesidades
+1. En tu Dashboard de Supabase, ve a **SQL Editor**
+2. Ejecuta el script de migración ubicado en `docs/database-migration.sql`
+3. Esto creará las tablas necesarias:
+   - `public.users` (con campo password)
+   - `public.user_sessions` (para manejar sesiones)
+
+### 4. Verificar la Configuración de la Base de Datos
+
+1. Ve a **Table Editor** en tu Dashboard de Supabase
+2. Verifica que existan las siguientes tablas:
+   - `users` con campos: id, email, password, name, created_at, updated_at
+   - `user_sessions` con campos: id, user_id, token, expires_at, created_at
 
 ## 🔧 Solución de Problemas Comunes
 
-### Error: "Auth session missing!"
+### Error: "Invalid API key"
+- Verifica que `VITE_SUPABASE_ANON_KEY` esté correctamente configurada
+- Asegúrate de que no haya espacios extra en la clave
 
-**Causa:** Este error ocurre cuando:
-- No hay una sesión activa de usuario
-- Las credenciales de Supabase no están configuradas
-- El token de sesión ha expirado
+### Error: "Failed to fetch"
+- Verifica que `VITE_SUPABASE_URL` esté correctamente configurada
+- Comprueba tu conexión a internet
+- Verifica que el proyecto de Supabase esté activo
 
-**Solución:**
-1. ✅ Verifica que el archivo `.env` existe y tiene las credenciales correctas
-2. ✅ Reinicia el servidor de desarrollo: `npm run dev`
-3. ✅ Verifica en la consola del navegador los logs de autenticación
-4. ✅ Si persiste, intenta hacer logout y login nuevamente
+### Error: "Table 'users' doesn't exist"
+- Asegúrate de haber ejecutado el script de migración `docs/database-migration.sql`
+- Verifica que las tablas `users` y `user_sessions` existan en el **Table Editor**
 
-### Error: "Faltan las variables de entorno de Supabase"
+### Error: "Column 'password' doesn't exist"
+- La tabla `users` debe tener el campo `password`
+- Re-ejecuta el script de migración si es necesario
 
-**Causa:** Las variables `VITE_SUPABASE_URL` o `VITE_SUPABASE_ANON_KEY` no están definidas.
+### Error de Autenticación: "Invalid credentials"
+- Verifica que el email y password sean correctos
+- Asegúrate de que el usuario esté registrado en la tabla `public.users`
+- Revisa que el password esté correctamente hasheado
 
-**Solución:**
-1. Verifica que el archivo `.env` existe en la raíz del proyecto
-2. Asegúrate de que las variables empiecen con `VITE_`
-3. Reinicia el servidor después de modificar el `.env`
+### Error: "Session expired"
+- El token de sesión ha expirado (24 horas por defecto)
+- El usuario debe iniciar sesión nuevamente
+- Verifica que la tabla `user_sessions` esté funcionando correctamente
 
-### Error: "Invalid JWT" o "session_not_found"
+### Variables de Entorno No Se Cargan
+- Asegúrate de que el archivo `.env` esté en la raíz del proyecto
+- Reinicia el servidor de desarrollo después de cambiar las variables
+- Verifica que las variables empiecen con `VITE_`
 
-**Causa:** Token de sesión inválido o expirado.
+## 🔍 Debugging del Sistema de Autenticación
 
-**Solución:**
-1. Limpia el localStorage del navegador
-2. Haz logout y login nuevamente
-3. Verifica que la configuración de Supabase sea correcta
+### Verificar Estado de las Tablas
+```sql
+-- Verificar usuarios registrados
+SELECT id, email, name, created_at FROM public.users;
+
+-- Verificar sesiones activas
+SELECT 
+  s.id, 
+  s.user_id, 
+  u.email, 
+  s.expires_at,
+  s.created_at
+FROM public.user_sessions s
+JOIN public.users u ON s.user_id = u.id;
+```
+
+### Limpiar Sesiones Expiradas
+```sql
+-- Eliminar sesiones expiradas
+DELETE FROM public.user_sessions 
+WHERE expires_at < NOW();
+```
 
 ## 🚀 Verificación de la Configuración
 

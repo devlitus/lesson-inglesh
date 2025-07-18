@@ -1,13 +1,17 @@
 export interface User {
   id: string;
-  name: string
+  name: string;
   email: string;
+  password?: string; // Opcional para no exponer en respuestas
 }
 
-export interface AuthSession {
-  access_token: string;
-  refresh_token: string;
-  expires_in: number;
-  token_type: string;
-  user: User;
+export interface SignInInput {
+  email: string;
+  password: string;
+}
+
+export interface SignUpInput {
+  name: string;
+  email: string;
+  password: string;
 }

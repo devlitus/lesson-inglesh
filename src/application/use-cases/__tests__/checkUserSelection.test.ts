@@ -79,7 +79,7 @@ describe('Check User Selection Use Case', () => {
 
       // Act & Assert: Should throw error with generic message
       await expect(checkUserSelectionUseCase()).rejects.toThrow(
-        'Error desconocido al verificar selecci?n del usuario'
+        'Error desconocido al verificar selección del usuario'
       );
     });
   });

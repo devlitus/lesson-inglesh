@@ -9,12 +9,24 @@ import { mockTopics } from '../../../mocks';
 // Mock hooks
 vi.mock('../../../application/hooks/useTopics');
 vi.mock('../../../infrastructure/store/selectionStore');
+vi.mock('../../../application/hooks/useNavigation');
+vi.mock('../../../infrastructure/store/userStore');
+vi.mock('../../../infrastructure/store/levelStore');
 vi.mock('../../../design-system/utils', () => ({
   createGradientStyle: vi.fn(() => ({ background: 'linear-gradient(to right, #3B82F6, #1E40AF)' }))
 }));
 
 const mockUseTopicsAutoLoad = useTopicsAutoLoad as ReturnType<typeof vi.mocked<typeof useTopicsAutoLoad>>;
 const mockUseSelection = useSelection as ReturnType<typeof vi.mocked<typeof useSelection>>;
+
+// Import y mock de los demás hooks
+import { useNavigation } from '../../../application/hooks/useNavigation';
+import { useUserStore } from '../../../infrastructure/store/userStore';
+import { useLevelStore } from '../../../infrastructure/store/levelStore';
+
+const mockUseNavigation = vi.mocked(useNavigation);
+const mockUseUserStore = vi.mocked(useUserStore);
+const mockUseLevelStore = vi.mocked(useLevelStore);
 
 
 const mockUpdateTopic = vi.fn();
@@ -38,6 +50,37 @@ describe('TopicList Component - Integration Tests', () => {
       clearSelection: vi.fn(),
       hasCompleteSelection: false,
       getSelection: vi.fn(() => ({ level: null, topic: null, user: null }))
+    });
+
+    // Mock useNavigation
+    mockUseNavigation.mockReturnValue({
+      goToLogin: vi.fn(),
+      goToDashboard: vi.fn(),
+      goToLesson: vi.fn(),
+      goBack: vi.fn(),
+      goTo: vi.fn(),
+    });
+
+    // Mock useUserStore
+    mockUseUserStore.mockReturnValue({
+      user: null,
+      loading: false,
+      setUser: vi.fn(),
+      setLoading: vi.fn(),
+      logout: vi.fn(),
+    });
+
+    // Mock useLevelStore  
+    mockUseLevelStore.mockReturnValue({
+      levels: [],
+      selectedLevel: null,
+      isLoading: false,
+      error: null,
+      setLevels: vi.fn(),
+      setSelectedLevel: vi.fn(),
+      setLoading: vi.fn(),
+      setError: vi.fn(),
+      clearError: vi.fn(),
     });
   });
 

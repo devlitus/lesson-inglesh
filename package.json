@@ -1,7 +1,25 @@
 {
   "name": "lesson-inglesh",
-  "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Una plataforma moderna de aprendizaje de inglés construida con React, TypeScript y arquitectura hexagonal",
+  "author": "devlitus",
+  "license": "MIT",
+  "homepage": "https://devlitus.github.io/lesson-inglesh/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devlitus/lesson-inglesh.git"
+  },
+  "keywords": [
+    "english-learning",
+    "education",
+    "react",
+    "typescript",
+    "vite",
+    "supabase",
+    "tailwindcss",
+    "hexagonal-architecture"
+  ],
+  "private": false,
   "type": "module",
   "scripts": {
     "dev": "vite",

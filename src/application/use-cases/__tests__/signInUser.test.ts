@@ -20,8 +20,12 @@ vi.mock('../../../infrastructure/store/userStore', () => ({
 import { SupabaseUserAdapter } from '../../../infrastructure/adapters/SupabaseUserAdapter';
 import { useUserStore } from '../../../infrastructure/store/userStore';
 
-const mockSupabaseUserAdapter = SupabaseUserAdapter as any;
-const mockUseUserStore = useUserStore as any;
+const mockSupabaseUserAdapter = SupabaseUserAdapter as unknown as {
+  signIn: ReturnType<typeof vi.fn>;
+};
+const mockUseUserStore = useUserStore as unknown as {
+  getState: ReturnType<typeof vi.fn>;
+};
 
 // Mock del store methods
 const mockUserStoreMethods = {

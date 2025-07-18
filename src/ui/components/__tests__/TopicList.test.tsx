@@ -25,7 +25,7 @@ describe('TopicList Component - Integration Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Default mock setup
+    // Default mock setup for useSelection
     mockUseSelection.mockReturnValue({
       selection: { level: null, topic: null, user: null },
       level: null,
